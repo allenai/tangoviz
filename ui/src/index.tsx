@@ -13,7 +13,7 @@ import { VarnishApp } from '@allenai/varnish';
 import '@allenai/varnish/theme.css';
 
 import { App } from './App';
-import { ScrollToTopOnPageChange } from './components/shared';
+import { ScrollToTopOnPageChange } from './components/ScrollToTopOnPageChange';
 
 const VarnishedApp = () => (
     <BrowserRouter>

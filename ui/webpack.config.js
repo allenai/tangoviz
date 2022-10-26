@@ -20,6 +20,10 @@ module.exports = (env) => ({
                 loader: 'ts-loader',
                 exclude: /node_modules/,
             },
+            {
+                test: /\.(jpg|svg|png)/,
+                loader: 'file-loader',
+            },
         ],
     },
     resolve: {

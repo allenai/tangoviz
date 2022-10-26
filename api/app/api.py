@@ -27,44 +27,150 @@ def create_api() -> Blueprint:
     def index() -> Tuple[str, int]:
         return '', 204
 
-    # The route below is an example API route. You can delete it and add
-    # your own.
-    @api.route('/api/solve', methods=['POST'])
-    def solve():
-        data = request.json
-        if data is None:
-            return error("No request body")
-
-        question = data.get("question")
-        if question is None or len(question.strip()) == 0:
-            return error('Please enter a question.')
-
-        choices = data.get("choices", [])
-        cleaned_choices = clean_str_list(choices)
-        if len(cleaned_choices) == 0:
-            return error('Please enter at least choice value.')
-
-        # We use a randomly generated index to choose our answer
-        rand_index = randint(0, len(cleaned_choices)-1)
-        selected = cleaned_choices[rand_index]
-
-        # We use a randomly generated value between 0 and 100 to make a fake score
-        random_value = randint(0, 100)
-        # We produce a score with no actual meaning, it's just for demonstration
-        # purposes
-        score = random_value - 50 if random_value > 50 else random_value - 0
-
-        answer = {
-            'answer': selected,
-            'score': score
+    @api.route('/api/workspace/<string:wsid>', methods=['GET'])
+    def get_workspace(wsid):
+        # todo: fill in moc with real data
+        moc_answer = {
+            'url': wsid,
+            'runs': [{
+                'name': 'name 1',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 21:45',
+                'stepStatus': '25 completed',
+            },
+            {
+                'name': 'name 2',
+                'status': 'failed',
+                'started': '2022-10-19 18:42',
+                'ended': '2022-10-19 19:18',
+                'stepStatus': '20 completed, 5 failed',
+            },
+            {
+                'name': 'name 3',
+                'status': 'running',
+                'started': '2022-10-21 17:45',
+                'stepStatus': '100 running, 43 completed, 5 failed, 35 not started',
+            }],
+            'allSteps': [{
+                'id': "id 1",
+                'atomicStepId': '123',
+                'name': 'name 1',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-21 19:45',
+                'executionURL': 'http://google.com',
+            },
+            {
+                'id': "id 2",
+                'atomicStepId': '345',
+                'name': 'name 2',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-21 19:45',
+                'executionURL': 'http://google.com',
+            },
+            {
+                'id': "id 3",
+                'atomicStepId': '567',
+                'name': 'name 3',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 21:45',
+                'executionURL': 'http://google.com',
+            }]
         }
-        current_app.logger.info(answer)
+        return jsonify(moc_answer)
 
-        # Create simulated latency. You should definitely remove this. It's
-        # just so that the API actually behaves like one we'd expect you to
-        # build
-        sleep(randint(1,3))
+    @api.route('/api/workspace/<string:wsid>/run/<string:rid>', methods=['GET'])
+    def get_run(wsid, rid):
+        # todo: fill in moc with real data
+        moc_answer = {
+            'name': 'name ' + rid,
+            'status': 'completed',
+            'started': '2022-10-20 19:45',
+            'ended': '2022-10-20 19:45',
+            'stepStatus': '3 completed',
+            'steps': [{
+                'id': "id 1",
+                'atomicStepId': '123',
+                'name': 'name 1',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 19:59',
+                'executionURL': 'http://google.com',
+            },
+            {
+                'id': "id 2",
+                'atomicStepId': '345',
+                'name': 'name 2',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 19:55',
+                'executionURL': 'http://google.com',
+            },
+            {
+                'id': "id 3",
+                'atomicStepId': '567',
+                'name': 'name 3',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-21 19:55',
+                'executionURL': 'http://google.com',
+            }]
+        }
+        return jsonify(moc_answer)
 
-        return jsonify(answer)
+    @api.route('/api/workspace/<string:wsid>/step/<string:sid>', methods=['GET'])
+    def get_step(wsid, sid):
+        # todo: fill in moc with real data
+        moc_answer = {
+            'id': sid,
+            'atomicStepId': '123',
+            'name': 'name ' + sid,
+            'status': 'completed',
+            'started': '2022-10-20 19:45',
+            'ended': '2022-10-20 19:45',
+            'executionURL': 'http://google.com',
+            'runs': [{
+                'name': 'name 1',
+                'status': 'completed',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 21:55',
+                'stepStatus': '25 completed',
+            },
+            {
+                'name': 'name 2',
+                'status': 'failed',
+                'started': '2022-10-19 18:42',
+                'ended': '2022-10-19 18:55',
+                'stepStatus': '20 completed, 5 failed',
+            },
+            {
+                'name': 'name 3',
+                'status': 'running',
+                'started': '2022-10-21 17:45',
+                'stepStatus': '100 running, 43 completed, 5 failed, 35 not started',
+            }],
+            'artifacts': {
+                '/sqlite/test.zip': 1650001,
+                '/sqlite/train.zip': 16440001,
+                '/sqlite/val.zip': 987001,
+                '/logs/pass1.txt': 165001,
+                '/logs/pass2.txt': 260001
+            },
+            'logURL': 'http://google.com'
+        }
+        return jsonify(moc_answer)
+
+    # todo: this api is expected to return a downloadable file
+    # where 'aid' is the artifact forlder path like '/sqlite/test'
+    # and wsid is the workspace id
+    @api.route('/api/workspace/<string:wsid>/artifact/<string:aid>', methods=['GET'])
+    def get_artifact(wsid, aid):
+        moc_answer = {
+            'jon': 'test'
+        }
+        return jsonify(moc_answer)
 
     return api

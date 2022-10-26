@@ -1,3 +1,7 @@
+# tangoviz
+
+Simple tabular view of Tango Workspaces
+
 # skiff-template
 
 Ahoy! Welcome to your new [skiff](https://github.com/allenai/skiff) template
@@ -166,5 +170,3 @@ If you're stuck don't hesitate to reach out:
 * Opening a [Github Issue](https://github.com/allenai/skiff/issues/new/choose)
 
 We're eager to improve `skiff` and need your feedback to do so!
-
-Smooth sailing ⛵️!
