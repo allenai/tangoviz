@@ -3,7 +3,7 @@ import useFetch from 'use-http';
 import { useParams } from 'react-router-dom';
 import { Descriptions } from 'antd';
 
-import { StepSummaryTable } from '../components/StepSummaryTable';
+import { RunStepSummaryTable } from '../components/StepSummaryTable';
 import { Run as RunModel } from '../api/Run';
 import { noCacheOptions } from '../api/Api';
 import { Breadcrumb } from '../components/Breadcrumb';
@@ -51,9 +51,9 @@ export const Run = () => {
                     </Descriptions>
 
                     <h4>Steps</h4>
-                    <StepSummaryTable
+                    <RunStepSummaryTable
                         workspaceId={wsid}
-                        data={response.data.steps}></StepSummaryTable>
+                        data={response.data.steps}></RunStepSummaryTable>
                 </>
             ) : null}
         </div>

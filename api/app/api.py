@@ -54,8 +54,6 @@ def create_api() -> Blueprint:
             }],
             'allSteps': [{
                 'id': "id 1",
-                'atomicStepId': '123',
-                'name': 'name 1',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:45',
@@ -63,8 +61,6 @@ def create_api() -> Blueprint:
             },
             {
                 'id': "id 2",
-                'atomicStepId': '345',
-                'name': 'name 2',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:45',
@@ -72,8 +68,6 @@ def create_api() -> Blueprint:
             },
             {
                 'id': "id 3",
-                'atomicStepId': '567',
-                'name': 'name 3',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 21:45',
@@ -93,8 +87,8 @@ def create_api() -> Blueprint:
             'stepStatus': '3 completed',
             'steps': [{
                 'id': "id 1",
-                'atomicStepId': '123',
                 'name': 'name 1',
+                'order': 1,
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 19:59',
@@ -102,8 +96,8 @@ def create_api() -> Blueprint:
             },
             {
                 'id': "id 2",
-                'atomicStepId': '345',
                 'name': 'name 2',
+                'order': 2,
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 19:55',
@@ -111,8 +105,8 @@ def create_api() -> Blueprint:
             },
             {
                 'id': "id 3",
-                'atomicStepId': '567',
                 'name': 'name 3',
+                'order': 3,
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:55',
@@ -126,8 +120,6 @@ def create_api() -> Blueprint:
         # todo: fill in moc with real data
         moc_answer = {
             'id': sid,
-            'atomicStepId': '123',
-            'name': 'name ' + sid,
             'status': 'completed',
             'started': '2022-10-20 19:45',
             'ended': '2022-10-20 19:45',

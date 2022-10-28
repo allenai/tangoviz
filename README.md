@@ -1,6 +1,3 @@
-atomic run issue
-graph
-
 # tangoviz
 
 Simple tabular view of Tango Workspaces.

@@ -1,5 +1,5 @@
 import { Status } from './Status';
-import { StepSummary } from './Step';
+import { RunStepSummary } from './Step';
 
 export interface RunSummary {
     name: string;
@@ -10,5 +10,5 @@ export interface RunSummary {
 }
 
 export interface Run extends RunSummary {
-    steps: StepSummary[];
+    steps: RunStepSummary[];
 }
