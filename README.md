@@ -1,4 +1,3 @@
-workspaces in session
 atomic run issue
 graph
 

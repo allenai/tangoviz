@@ -7,6 +7,7 @@ import { StepSummaryTable } from '../components/StepSummaryTable';
 import { Workspace as WorkspaceModel } from '../api/Workspace';
 import { noCacheOptions } from '../api/Api';
 import { Breadcrumb } from '../components/Breadcrumb';
+import { addWorkspace } from '../api/Session';
 
 export const Workspace = () => {
     const { wsid } = useParams<{ wsid: string }>();
@@ -16,8 +17,16 @@ export const Workspace = () => {
     );
 
     useEffect(() => {
-        get();
+        fetchData();
     }, []);
+
+    async function fetchData() {
+        await get();
+        if (response.ok) {
+            // if we were successful in loading this ws, add it to the recent list
+            addWorkspace(atob(wsid));
+        }
+    }
 
     return (
         <div>

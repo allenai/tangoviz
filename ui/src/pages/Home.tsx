@@ -1,23 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { Input, Form, List } from 'antd';
+import { Input, Form, List, Button } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 
+import { UserSessionData, getUserSessionData, removeWorkspace } from '../api/Session';
+
 export const Home = () => {
+    const [userSessionData, setUserSessionData] = useState<UserSessionData>();
     const history = useHistory();
+
+    useEffect(() => {
+        setUserSessionData(getUserSessionData());
+    }, []);
 
     const onSelect = (searchText: string) => {
         history.push(`/workspace/${btoa(searchText)}`);
     };
 
-    // todo: grab these from session
-    const recentWorkspaces: string[] = [
-        'beaker://ai2/task-complexity',
-        'wandb://allennlp/catwalk',
-        'wandb://dirkgr/quark',
-        'gcs://catwalk',
-    ];
+    const removeWorkspaceAndReload = (wsid: string) => {
+        removeWorkspace(wsid);
+        setUserSessionData(getUserSessionData());
+    };
 
     return (
         <div>
@@ -64,21 +68,31 @@ export const Home = () => {
                 />
             </Form.Item>
 
-            {recentWorkspaces.length ? (
+            {userSessionData?.recentWorkspaces.length ? (
                 <List
                     size="small"
                     header={<h4>Recent Workspaces</h4>}
-                    dataSource={recentWorkspaces}
+                    dataSource={userSessionData?.recentWorkspaces}
                     pagination={{
                         hideOnSinglePage: true,
                         size: 'small',
                         defaultPageSize: 6,
                     }}
-                    renderItem={(ulr) => (
-                        <List.Item>
-                            <a href={`/workspace/${btoa(ulr)}`}>{ulr}</a>
-                        </List.Item>
-                    )}
+                    renderItem={(url) => {
+                        return (
+                            <List.Item
+                                actions={[
+                                    <Button
+                                        key={url}
+                                        type="link"
+                                        onClick={() => removeWorkspaceAndReload(url)}>
+                                        Remove
+                                    </Button>,
+                                ]}>
+                                <a href={`/workspace/${btoa(url)}`}>{url}</a>
+                            </List.Item>
+                        );
+                    }}
                 />
             ) : null}
         </div>
