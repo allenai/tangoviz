@@ -44,3 +44,27 @@ export const RelativeTime = ({ date }: { date?: string }) => {
         </span>
     );
 };
+
+export const readableFileSize = (bytes: number) => {
+    const format = {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+    };
+    let test = Math.pow(1024, 4);
+    if (bytes > test) {
+        return `${(bytes / test).toLocaleString(undefined, format)} TB`;
+    }
+    test /= 1024;
+    if (bytes > test) {
+        return `${(bytes / test).toLocaleString(undefined, format)} GB`;
+    }
+    test /= 1024;
+    if (bytes > test) {
+        return `${(bytes / test).toLocaleString(undefined, format)} MB`;
+    }
+    test /= 1024;
+    if (bytes > test) {
+        return `${(bytes / test).toLocaleString(undefined, format)} KB`;
+    }
+    return `${bytes} Bytes`;
+};

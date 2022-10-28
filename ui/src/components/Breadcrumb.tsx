@@ -7,6 +7,8 @@ interface Props {
     secondaryId?: string;
 }
 
+// quick hack of a breadcrumg.. only does 1 or 2 layers
+// todo: if we want more, rework this
 export const Breadcrumb = ({ workspaceId, secondaryId }: Props) => {
     if (!workspaceId) {
         return <></>;

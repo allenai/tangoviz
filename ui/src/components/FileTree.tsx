@@ -3,6 +3,7 @@ import { Tree, Button } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 
 import { getArtifact } from '../api/Api';
+import { readableFileSize } from '../components/Formatters';
 
 export interface Props {
     data: { [file: string]: number };
@@ -94,12 +95,7 @@ export const FileTree = ({ data, wsid, className }: Props) => {
                             onClick={() => getArtifact(k, wsid, btoa(obj.fullPath))}>
                             {k}
                         </Button>{' '}
-                        (
-                        {(obj.size / 1000000).toLocaleString(undefined, {
-                            maximumFractionDigits: 2,
-                            minimumFractionDigits: 0,
-                        })}{' '}
-                        MB)
+                        ({readableFileSize(obj.size)})
                     </span>
                 ) : (
                     k
