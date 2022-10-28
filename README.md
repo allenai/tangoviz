@@ -1,11 +1,22 @@
+workspaces in session
+atomic run issue
+graph
+
 # tangoviz
 
-Simple tabular view of Tango Workspaces
+Simple tabular view of Tango Workspaces.
 
-# skiff-template
+AI2 Tango allows you to build machine learning experiments out of steps that can be
+reused and repeated. Users can write their own steps simply by wrapping common
+Python functions. Tango also comes with a library of pre-built steps for training
+models, working with datasets, and running evaluations. It is integrated with
+popular tools like the Huggingface transformers library, PyTorch Lightning, and
+others.
 
-Ahoy! Welcome to your new [skiff](https://github.com/allenai/skiff) template
-application that includes:
+Tango’s built-in mechanism for storing and retrieving results makes sure that
+researchers can stay flexible when pursuing another idea. No work is duplicated,
+past results can be found easily, and the way a result was obtained is stored along
+with the result itself.
 
 * A Python, [Flask](http://flask.pocoo.org/) API server.
 * A [TypeScript](https://www.typescriptlang.org/), [ReactJS](https://reactjs.org/)
@@ -14,8 +25,6 @@ application that includes:
   reverse proxying requests to the API.
 * Automatic deploys to shared infrastructure and other functionality provided by
   [skiff](https://skiff.allenai.org).
-
-To start a new repository from this template, click [here](https://github.com/allenai/skiff-template/generate).
 
 ## Prerequisites
 
@@ -168,5 +177,3 @@ If you're stuck don't hesitate to reach out:
 * Sending an email to [reviz@allenai.org](mailto:reviz@allenai.org)
 * Joining the `#skiff-users` slack channel
 * Opening a [Github Issue](https://github.com/allenai/skiff/issues/new/choose)
-
-We're eager to improve `skiff` and need your feedback to do so!

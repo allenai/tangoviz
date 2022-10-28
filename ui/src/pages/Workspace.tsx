@@ -29,10 +29,10 @@ export const Workspace = () => {
             {error ? `Error: ${error.message}}` : null}
             {!error && response.data ? (
                 <>
-                    <h3>Runs</h3>
+                    <h4>Runs</h4>
                     <RunSummaryTable workspaceId={wsid} data={response.data.runs}></RunSummaryTable>
 
-                    <h3>Steps</h3>
+                    <h4>Steps</h4>
                     <StepSummaryTable
                         workspaceId={wsid}
                         data={response.data.allSteps}></StepSummaryTable>

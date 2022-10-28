@@ -6,11 +6,13 @@ import duration from 'dayjs/plugin/duration';
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
-const dateWithTime = 'M/D/YY h:mm:ss a';
+export const dateWithTime = 'M/D/YY H:mm:ss';
 
 /**
- * Duration (and duration relative)
- * 1/2/1-1/3/1 (14 hours)
+ * Duration
+ *
+ * 14 hours
+ * 1/2/22 9:45:00 - 1/2/22 15:5:01
  */
 export const RelativeDuration = ({ start, end }: { start?: string; end?: string }) => {
     if (!end || !start) {
@@ -28,23 +30,17 @@ export const RelativeDuration = ({ start, end }: { start?: string; end?: string 
 };
 
 /**
- * When started (and started relative)
- * 1/1/1 (21 hours ago)
- *
- * When ended (and ended relative)
- * 1/2/1 (21 hours ago)
+ * Datetime
+ * 21 hours ago (1/2/22 9:45:00)
  */
-
 export const RelativeTime = ({ date }: { date?: string }) => {
     if (!date) {
-        return <span></span>;
+        return <></>;
     }
     const d = dayjs(date);
     return (
         <span>
-            {d.fromNow()}
-            <br />
-            {d.format(dateWithTime)}
+            {d.fromNow()} ({d.format(dateWithTime)})
         </span>
     );
 };

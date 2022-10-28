@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import styled from 'styled-components';
 import useFetch from 'use-http';
 import { useParams } from 'react-router-dom';
 import { Descriptions } from 'antd';
@@ -9,7 +10,7 @@ import { noCacheOptions } from '../api/Api';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { RelativeTime, RelativeDuration } from '../components/Formatters';
 import { FileTree } from '../components/FileTree';
-import { StatusIcon } from '../components/StatusIcon';
+import { StatusIconWithLabel } from '../components/StatusIcon';
 
 export const Step = () => {
     const { wsid, sid } = useParams<{ wsid: string; sid: string }>();
@@ -32,9 +33,7 @@ export const Step = () => {
                 <>
                     <Descriptions size="small" title={<h1>Step Details</h1>} bordered>
                         <Descriptions.Item span={99} label="Status">
-                            <span>
-                                <StatusIcon status={response.data.status} /> {response.data.status}
-                            </span>
+                            <StatusIconWithLabel status={response.data.status} />
                         </Descriptions.Item>
                         <Descriptions.Item span={99} label="Started">
                             <RelativeTime date={response.data.started} />
@@ -56,13 +55,18 @@ export const Step = () => {
                         </Descriptions.Item>
                     </Descriptions>
 
-                    <h3>Artifacts</h3>
-                    <FileTree data={response.data.artifacts} wsid={wsid} />
+                    <h4>Artifacts</h4>
+                    <Artifacts data={response.data.artifacts} wsid={wsid} />
 
-                    <h3>Used in Runs</h3>
+                    <h4>Used in Runs</h4>
                     <RunSummaryTable workspaceId={wsid} data={response.data.runs}></RunSummaryTable>
                 </>
             ) : null}
         </div>
     );
 };
+
+const Artifacts = styled(FileTree)`
+    border: ${({ theme }) => `1px solid ${theme.palette.border.default}`};
+    padding: ${({ theme }) => theme.spacing.xs};
+`;

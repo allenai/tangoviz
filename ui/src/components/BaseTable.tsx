@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Table, Input, Select } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import { Dayjs } from 'dayjs';
+import { RangeValue } from 'rc-picker/lib/interface';
+
+import DatePicker from './DatePicker';
+import { dateWithTime } from './Formatters';
+
+const { RangePicker } = DatePicker;
 
 export type GetInputFilterByType<T> = (
     id: string,
@@ -14,11 +21,17 @@ export type GetSelectFilterByType<T> = (
     options: string[]
 ) => JSX.Element;
 
+export type GetDateFilterByType<T> = (
+    id: string,
+    filter: (value: RangeValue<Dayjs>, records: T[]) => T[]
+) => JSX.Element;
+
 interface Props<T> {
     data: T[];
     getColumns: (
         getInputFilterBy: GetInputFilterByType<T>,
-        getSelectFilterBy: GetSelectFilterByType<T>
+        getSelectFilterBy: GetSelectFilterByType<T>,
+        getDateFilterBy: GetDateFilterByType<T>
     ) => ColumnsType<T>;
     dataKey: keyof T;
 }
@@ -39,7 +52,7 @@ export function BaseTable<T extends object>({ data, getColumns, dataKey }: Props
     const [columns, setColumns] = useState<ColumnsType<T>>([]);
 
     useEffect(() => {
-        setColumns(getColumns(getInputFilterBy, getSelectFilterBy));
+        setColumns(getColumns(getInputFilterBy, getSelectFilterBy, getDateFilterBy));
     }, [getColumns]);
 
     // returns an input box that when typed in saves a specific filter to the map of active filters
@@ -48,20 +61,23 @@ export function BaseTable<T extends object>({ data, getColumns, dataKey }: Props
         filter: (value: string, records: T[]) => T[]
     ) => {
         return (
-            <FilterInput
-                size="small"
-                allowClear={true}
-                placeholder={id}
-                onChange={(e) => {
-                    const currValue = e.target.value;
-                    activeFilters[id] = (records: T[]) => filter(currValue, records);
-                    setActiveFilters(activeFilters);
-                    filterDatasource(activeFilters);
-                }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                }}
-            />
+            <div>
+                <div>{id}</div>
+                <FilterInput
+                    size="small"
+                    allowClear={true}
+                    placeholder={`filter ${id}`}
+                    onChange={(e) => {
+                        const currValue = e.target.value;
+                        activeFilters[id] = (records: T[]) => filter(currValue, records);
+                        setActiveFilters(activeFilters);
+                        filterDatasource(activeFilters);
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}
+                />
+            </div>
         );
     };
 
@@ -72,25 +88,54 @@ export function BaseTable<T extends object>({ data, getColumns, dataKey }: Props
         options: string[]
     ) => {
         return (
-            <FilterSelect
-                size="small"
-                placeholder={id}
-                onChange={(val) => {
-                    const currValue = val as string;
-                    activeFilters[id] = (records: T[]) => filter(currValue, records);
-                    setActiveFilters(activeFilters);
-                    filterDatasource(activeFilters);
-                }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                }}>
-                <Select.Option value={''}>{`Any ${id}`}</Select.Option>
-                {options.map((o) => (
-                    <Select.Option key={o} value={o}>
-                        {o}
-                    </Select.Option>
-                ))}
-            </FilterSelect>
+            <div>
+                <div>{id}</div>
+                <FilterSelect
+                    size="small"
+                    placeholder={`filter ${id}`}
+                    onChange={(val) => {
+                        const currValue = val as string;
+                        activeFilters[id] = (records: T[]) => filter(currValue, records);
+                        setActiveFilters(activeFilters);
+                        filterDatasource(activeFilters);
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}>
+                    <Select.Option value={''}>{`Any ${id}`}</Select.Option>
+                    {options.map((o) => (
+                        <Select.Option key={o} value={o}>
+                            {o}
+                        </Select.Option>
+                    ))}
+                </FilterSelect>
+            </div>
+        );
+    };
+
+    // same as above, but displays a datepicker
+    const getDateFilterBy: GetDateFilterByType<T> = (
+        id: string,
+        filter: (value: RangeValue<Dayjs>, records: T[]) => T[]
+    ) => {
+        return (
+            <div>
+                <div>{id}</div>
+                <RangePicker
+                    size="small"
+                    showTime
+                    format={dateWithTime}
+                    onChange={(val) => {
+                        const currValue = val;
+                        activeFilters[id] = (records: T[]) => filter(currValue, records);
+                        setActiveFilters(activeFilters);
+                        filterDatasource(activeFilters);
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}
+                />
+            </div>
         );
     };
 
@@ -106,6 +151,7 @@ export function BaseTable<T extends object>({ data, getColumns, dataKey }: Props
             rowKey={dataKey.toString()}
             dataSource={filteredSummaries}
             columns={columns}
+            size="small"
             pagination={{
                 hideOnSinglePage: true,
                 showSizeChanger: true,

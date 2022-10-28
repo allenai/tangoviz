@@ -3,11 +3,14 @@ import styled from 'styled-components';
 import { HomeOutlined, RightOutlined } from '@ant-design/icons';
 
 interface Props {
-    workspaceId: string;
+    workspaceId?: string;
     secondaryId?: string;
 }
 
 export const Breadcrumb = ({ workspaceId, secondaryId }: Props) => {
+    if (!workspaceId) {
+        return <></>;
+    }
     return (
         <Container>
             <a href={`/`}>

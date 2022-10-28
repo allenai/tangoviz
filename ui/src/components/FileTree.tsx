@@ -7,9 +7,10 @@ import { getArtifact } from '../api/Api';
 export interface Props {
     data: { [file: string]: number };
     wsid: string;
+    className?: string;
 }
 
-export const FileTree = ({ data, wsid }: Props) => {
+export const FileTree = ({ data, wsid, className }: Props) => {
     /*
         converting this:
         {
@@ -111,5 +112,12 @@ export const FileTree = ({ data, wsid }: Props) => {
 
     const treeData: DataNode[] = toTree(treeDataAsDic);
 
-    return <Tree selectable={false} defaultExpandAll={true} treeData={treeData} />;
+    return (
+        <Tree
+            className={className}
+            selectable={false}
+            defaultExpandAll={true}
+            treeData={treeData}
+        />
+    );
 };

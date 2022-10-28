@@ -27,9 +27,7 @@ export const App = () => {
                 <Layout bgcolor="white">
                     <Header>
                         <Header.Columns columns="auto 1fr">
-                            <Header.Logo
-                                href="/"
-                                label={<Header.AppName>Tango Reporting</Header.AppName>}>
+                            <Header.Logo href="/" label={<Header.AppName>Tango</Header.AppName>}>
                                 <Logo />
                             </Header.Logo>
                         </Header.Columns>

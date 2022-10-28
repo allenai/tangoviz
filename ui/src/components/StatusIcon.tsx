@@ -32,9 +32,18 @@ export const StatusIcon = ({ status }: Props) => {
             return <Uncacheable />;
         }
         default: {
-            return <span></span>;
+            return <></>;
         }
     }
+};
+
+export const StatusIconWithLabel = ({ status }: Props) => {
+    return (
+        <Container>
+            <StatusIcon status={status} />
+            {status}
+        </Container>
+    );
 };
 
 const Completed = styled(CheckSquareOutlined)`
@@ -47,4 +56,11 @@ const Failed = styled(WarningOutlined)`
 
 const Uncacheable = styled(QuestionCircleOutlined)`
     color: ${({ theme }) => theme.color.R6};
+`;
+
+const Container = styled.span`
+    display: flex;
+    flex-wrap: wrap;
+    gap: ${({ theme }) => theme.spacing.sm};
+    align-items: center;
 `;

@@ -8,7 +8,7 @@ import { Run as RunModel } from '../api/Run';
 import { noCacheOptions } from '../api/Api';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { RelativeTime, RelativeDuration } from '../components/Formatters';
-import { StatusIcon } from '../components/StatusIcon';
+import { StatusIconWithLabel } from '../components/StatusIcon';
 
 export const Run = () => {
     const { wsid, rid } = useParams<{ wsid: string; rid: string }>();
@@ -31,9 +31,7 @@ export const Run = () => {
                 <>
                     <Descriptions size="small" title={<h1>Run Details</h1>} bordered>
                         <Descriptions.Item span={99} label="Status">
-                            <span>
-                                <StatusIcon status={response.data.status} /> {response.data.status}
-                            </span>
+                            <StatusIconWithLabel status={response.data.status} />
                         </Descriptions.Item>
                         <Descriptions.Item span={99} label="Step Status">
                             {response.data.stepStatus}
@@ -52,7 +50,7 @@ export const Run = () => {
                         </Descriptions.Item>
                     </Descriptions>
 
-                    <h3>Steps</h3>
+                    <h4>Steps</h4>
                     <StepSummaryTable
                         workspaceId={wsid}
                         data={response.data.steps}></StepSummaryTable>

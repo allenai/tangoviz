@@ -59,7 +59,7 @@ def create_api() -> Blueprint:
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:45',
-                'executionURL': 'http://google.com',
+                'executionURL': 'beaker://ai2/task-complexity/ex1',
             },
             {
                 'id': "id 2",
@@ -68,7 +68,7 @@ def create_api() -> Blueprint:
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:45',
-                'executionURL': 'http://google.com',
+                'executionURL': 'beaker://ai2/task-complexity/ex2',
             },
             {
                 'id': "id 3",
@@ -77,7 +77,7 @@ def create_api() -> Blueprint:
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 21:45',
-                'executionURL': 'http://google.com',
+                'executionURL': 'beaker://ai2/task-complexity/ex3',
             }]
         }
         return jsonify(moc_answer)
@@ -98,7 +98,7 @@ def create_api() -> Blueprint:
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 19:59',
-                'executionURL': 'http://google.com',
+                'executionURL': 'beaker://ai2/task-complexity/ex1',
             },
             {
                 'id': "id 2",
@@ -107,7 +107,7 @@ def create_api() -> Blueprint:
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 19:55',
-                'executionURL': 'http://google.com',
+                'executionURL': 'beaker://ai2/task-complexity/ex2',
             },
             {
                 'id': "id 3",
@@ -116,7 +116,7 @@ def create_api() -> Blueprint:
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:55',
-                'executionURL': 'http://google.com',
+                'executionURL': 'beaker://ai2/task-complexity/ex3',
             }]
         }
         return jsonify(moc_answer)
@@ -131,7 +131,7 @@ def create_api() -> Blueprint:
             'status': 'completed',
             'started': '2022-10-20 19:45',
             'ended': '2022-10-20 19:45',
-            'executionURL': 'http://google.com',
+            'executionURL': 'beaker://ai2/task-complexity/ex1',
             'runs': [{
                 'name': 'name 1',
                 'status': 'completed',
@@ -159,7 +159,7 @@ def create_api() -> Blueprint:
                 '/logs/pass1.txt': 165001,
                 '/logs/pass2.txt': 260001
             },
-            'logURL': 'http://google.com'
+            'logURL': 'beaker://ai2/task-complexity/ggt/log.txt'
         }
         return jsonify(moc_answer)
 
