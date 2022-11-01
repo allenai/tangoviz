@@ -9,6 +9,7 @@ import { noCacheOptions } from '../api/Api';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { RelativeTime, RelativeDuration } from '../components/Formatters';
 import { StatusIconWithLabel } from '../components/StatusIcon';
+import { Flow } from '../components/Flow';
 
 export const Run = () => {
     const { wsid, rid } = useParams<{ wsid: string; rid: string }>();
@@ -54,6 +55,9 @@ export const Run = () => {
                     <RunStepSummaryTable
                         workspaceId={wsid}
                         data={response.data.steps}></RunStepSummaryTable>
+
+                    <h4>Dependency Graph</h4>
+                    <Flow />
                 </>
             ) : null}
         </div>
