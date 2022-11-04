@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import ReactFlow, {
     Controls,
-    ControlButton,
     Background,
     MiniMap,
     useNodesState,
@@ -10,116 +9,67 @@ import ReactFlow, {
     Edge,
     Position,
 } from 'reactflow';
-import {
-    DeleteColumnOutlined ,
-    DeleteRowOutlined ,
-} from '@ant-design/icons';
 import dagre from 'dagre';
 
 import 'reactflow/dist/style.css';
 
-const position = { x: 0, y: 0 };
-const edgeType = 'smoothstep';
-const edgeStyle = { strokeWidth: 4 };
+import { CustomNode, CustomNodeData } from './customFlow/CustomNode';
+import { FloatingEdge, FloatingEdgeData } from './customFlow/FloatingEdge';
+import { RunStepSummary } from '../api/Step';
 
-const initialNodes = [
-    {
-        id: '1',
-        type: 'input',
-        data: { label: 'input' },
-        position,
-    },
-    {
-        id: '2',
-        data: { label: 'node 2' },
-        position,
-    },
-    {
-        id: '2a',
-        data: { label: 'node 2a' },
-        position,
-    },
-    {
-        id: '2b',
-        data: { label: 'node 2b' },
-        position,
-    },
-    {
-        id: '2c',
-        data: { label: 'node 2c' },
-        position,
-    },
-    {
-        id: '2d',
-        data: { label: 'node 2d' },
-        position,
-    },
-    {
-        id: '3',
-        data: { label: 'node 3' },
-        position,
-    },
-    {
-        id: '4',
-        data: { label: 'node 4' },
-        position,
-    },
-    {
-        id: '5',
-        data: { label: 'node 5' },
-        position,
-    },
-    {
-        id: '6',
-        type: 'output',
-        data: { label: 'output' },
-        position,
-    },
-    { id: '7', type: 'output', data: { label: 'output' }, position },
-];
+type MyNode = Node<CustomNodeData>;
+type MyEdge = Edge<FloatingEdgeData>;
 
-const initialEdges = [
-    { id: 'e12', source: '1', target: '2', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e13', source: '1', target: '3', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e22a', source: '2', target: '2a', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e22b', source: '2', target: '2b', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e22c', source: '2', target: '2c', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e2c2d', source: '2c', target: '2d', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e45', source: '4', target: '5', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e56', source: '5', target: '6', type: edgeType, animated: true, style: edgeStyle },
-    { id: 'e57', source: '5', target: '7', type: edgeType, animated: true, style: edgeStyle },
-];
+enum Orientation {
+    LR = 'LR',
+    TB = 'TB',
+}
+
+const nodeTypes = {
+    customNode: CustomNode,
+};
+
+const edgeTypes = {
+    floatingEdge: FloatingEdge,
+};
+
+const origin = { x: 0, y: 0 };
+const pad = 50;
+const nodeWidth = 300 + pad;
+const nodeHeight = 50 + pad;
+const nodeWidthExp = 300 + pad;
+const nodeHeightExp = 300 + pad;
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 172;
-const nodeHeight = 36;
-
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => {
-    const isHorizontal = direction === 'LR';
+const getLayoutedElements = (nodes: MyNode[], edges: MyEdge[], direction = Orientation.LR) => {
+    const isHorizontal = direction === Orientation.LR;
     dagreGraph.setGraph({ rankdir: direction });
 
-    nodes.forEach((node: Node) => {
-        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    nodes.forEach((node: MyNode) => {
+        dagreGraph.setNode(node.id, {
+            width: node.data.isExpanded ? nodeWidthExp : nodeWidth,
+            height: node.data.isExpanded ? nodeHeightExp : nodeHeight,
+        });
     });
 
-    edges.forEach((edge: Edge) => {
+    edges.forEach((edge: MyEdge) => {
         dagreGraph.setEdge(edge.source, edge.target);
     });
 
     dagre.layout(dagreGraph);
 
-    nodes.forEach((node: Node) => {
+    nodes.forEach((node: MyNode) => {
         const nodeWithPosition = dagreGraph.node(node.id);
-        node.targetPosition = (isHorizontal ? 'left' : 'top') as Position;
-        node.sourcePosition = (isHorizontal ? 'right' : 'bottom') as Position;
+        node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+        node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
 
         // We are shifting the dagre node position (anchor=center center) to the top left
         // so it matches the React Flow node anchor point (top left).
         node.position = {
-            x: nodeWithPosition.x - nodeWidth / 2,
-            y: nodeWithPosition.y - nodeHeight / 2,
+            x: nodeWithPosition.x - (node.data.isExpanded ? nodeWidthExp : nodeWidth) / 2,
+            y: nodeWithPosition.y - (node.data.isExpanded ? nodeHeightExp : nodeHeight) / 2,
         };
 
         return node;
@@ -128,22 +78,54 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => 
     return { nodes, edges };
 };
 
-const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-    initialNodes,
-    initialEdges
-);
-
 interface Props {
-    workspaceId?: string;
-    secondaryId?: string;
+    runStepSummaries: RunStepSummary[];
 }
 
-export const Flow = ({ workspaceId, secondaryId }: Props) => {
+export const Flow = ({ runStepSummaries }: Props) => {
+    const onExpand = (d: CustomNodeData) => {
+        d.isExpanded = !d.isExpanded;
+        onLayout(Orientation.LR); // todo: if we put back orientation, this need to be fixed
+    };
+
+    const initialNodes: MyNode[] = runStepSummaries.map((d) => {
+        return {
+            id: d.id,
+            type: 'customNode',
+            data: { runStepSummary: d, onExpand: onExpand },
+            position: origin,
+        };
+    });
+    const runStepSummaryDict: { [id: string]: RunStepSummary } = {};
+
+    runStepSummaries.forEach((step) => {
+        runStepSummaryDict[step.id] = step;
+    });
+
+    const initialEdges: MyEdge[] = [];
+    runStepSummaries.forEach((step) => {
+        step.dependencies.forEach((dep) => {
+            initialEdges.push({
+                id: `${step.id}_${dep}`,
+                source: dep,
+                target: step.id,
+                type: 'floatingEdge',
+                animated: true,
+                data: { runStepSummary: runStepSummaryDict[dep] },
+            });
+        });
+    });
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+        initialNodes,
+        initialEdges
+    );
+
     const [nodes, setNodes] = useNodesState(layoutedNodes);
     const [edges, setEdges] = useEdgesState(layoutedEdges);
 
     const onLayout = useCallback(
-        (direction: string) => {
+        (direction: Orientation) => {
             const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
                 nodes,
                 edges,
@@ -158,15 +140,21 @@ export const Flow = ({ workspaceId, secondaryId }: Props) => {
     return (
         <div>
             <div style={{ width: '100%', height: '600px' }}>
-                <ReactFlow nodes={nodes} edges={edges} fitView>
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    fitView
+                    nodeTypes={nodeTypes}
+                    edgeTypes={edgeTypes}>
                     <Background />
                     <Controls showInteractive={false}>
-                    <ControlButton onClick={() => onLayout('LR')}>
-                        <DeleteRowOutlined  rotate={180}/>
-                    </ControlButton>
-                    <ControlButton onClick={() => onLayout('TB')}>
-                        <DeleteColumnOutlined rotate={180}/>
-                    </ControlButton>
+                        {/* TODO: if we put this back, we ned to fix layout swap issues
+                        <ControlButton onClick={() => onLayout(Orientation.LR)}>
+                            <DeleteRowOutlined rotate={180} />
+                        </ControlButton>
+                        <ControlButton onClick={() => onLayout(Orientation.TB)}>
+                            <DeleteColumnOutlined rotate={180} />
+                        </ControlButton> */}
                     </Controls>
                     <MiniMap />
                 </ReactFlow>

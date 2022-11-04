@@ -1,26 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import useFetch from 'use-http';
 import { useParams } from 'react-router-dom';
-import { Descriptions } from 'antd';
+import { ReactFlowProvider } from 'reactflow';
 
 import { RunStepSummaryTable } from '../components/StepSummaryTable';
 import { Run as RunModel } from '../api/Run';
 import { noCacheOptions } from '../api/Api';
+import { useIntervalAsync, FetchInterval } from '../api/useIntervalAsync';
 import { Breadcrumb } from '../components/Breadcrumb';
-import { RelativeTime, RelativeDuration } from '../components/Formatters';
-import { StatusIconWithLabel } from '../components/StatusIcon';
 import { Flow } from '../components/Flow';
+import { RunDetails } from '../components/RunDetails';
 
 export const Run = () => {
     const { wsid, rid } = useParams<{ wsid: string; rid: string }>();
-    const { get, response, loading, error } = useFetch<RunModel>(
-        `/api/workspace/${wsid}/run/${rid}`,
-        noCacheOptions
-    );
+    const fetchUrl = `/api/workspace/${wsid}/run/${rid}`;
+    const { get, response, loading, error } = useFetch<RunModel>(fetchUrl, noCacheOptions);
+    const { get: refetch } = useFetch<RunModel>(fetchUrl, noCacheOptions);
 
     useEffect(() => {
         get();
     }, []);
+
+    const refetchData = useCallback(async () => {
+        if (response.data && !loading && !error) {
+            refetch();
+        }
+    }, []);
+
+    // poll the api to update ui on an interval
+    useIntervalAsync(refetchData as any, FetchInterval);
 
     return (
         <div>
@@ -30,34 +38,17 @@ export const Run = () => {
             {error ? `Error: ${error.message}}` : null}
             {!error && response.data ? (
                 <>
-                    <Descriptions size="small" title={<h1>Run Details</h1>} bordered>
-                        <Descriptions.Item span={99} label="Status">
-                            <StatusIconWithLabel status={response.data.status} />
-                        </Descriptions.Item>
-                        <Descriptions.Item span={99} label="Step Status">
-                            {response.data.stepStatus}
-                        </Descriptions.Item>
-                        <Descriptions.Item span={99} label="Started">
-                            <RelativeTime date={response.data.started} />
-                        </Descriptions.Item>
-                        <Descriptions.Item span={99} label="Ended">
-                            <RelativeTime date={response.data.ended} />
-                        </Descriptions.Item>
-                        <Descriptions.Item span={99} label="Duration">
-                            <RelativeDuration
-                                start={response.data.started}
-                                end={response.data.ended}
-                            />
-                        </Descriptions.Item>
-                    </Descriptions>
+                    <RunDetails run={response.data} />
 
                     <h4>Steps</h4>
                     <RunStepSummaryTable
                         workspaceId={wsid}
-                        data={response.data.steps}></RunStepSummaryTable>
+                        data={response.data.runStepSummaries}></RunStepSummaryTable>
 
                     <h4>Dependency Graph</h4>
-                    <Flow />
+                    <ReactFlowProvider>
+                        <Flow runStepSummaries={response.data.runStepSummaries} />
+                    </ReactFlowProvider>
                 </>
             ) : null}
         </div>

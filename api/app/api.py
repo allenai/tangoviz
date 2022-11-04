@@ -52,26 +52,29 @@ def create_api() -> Blueprint:
                 'started': '2022-10-21 17:45',
                 'stepStatus': '100 running, 43 completed, 5 failed, 35 not started',
             }],
-            'allSteps': [{
-                'id': "id 1",
+            'allStepSummaries': [{
+                'id': 'id 1',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:45',
                 'executionURL': 'beaker://ai2/task-complexity/ex1',
+                'dependencies': [],
             },
             {
-                'id': "id 2",
+                'id': 'id 2',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-21 19:45',
                 'executionURL': 'beaker://ai2/task-complexity/ex2',
+                'dependencies': ['id 1'],
             },
             {
-                'id': "id 3",
+                'id': 'id 3',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 21:45',
                 'executionURL': 'beaker://ai2/task-complexity/ex3',
+                'dependencies': ['id 1', 'id 2'],
             }]
         }
         return jsonify(moc_answer)
@@ -85,33 +88,57 @@ def create_api() -> Blueprint:
             'started': '2022-10-20 19:45',
             'ended': '2022-10-20 19:45',
             'stepStatus': '3 completed',
-            'steps': [{
-                'id': "id 1",
-                'name': 'name 1',
+            'runStepSummaries': [
+            {
+                'id': 'Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83',
+                'name': 'prepare',
                 'order': 1,
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
                 'ended': '2022-10-20 19:59',
                 'executionURL': 'beaker://ai2/task-complexity/ex1',
+                'dependencies': [],
             },
             {
-                'id': "id 2",
-                'name': 'name 2',
+                'id': 'Pretraining-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83',
+                'name': 'pretrain',
                 'order': 2,
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
-                'ended': '2022-10-20 19:55',
-                'executionURL': 'beaker://ai2/task-complexity/ex2',
+                'ended': '2022-10-20 19:59',
+                'executionURL': 'beaker://ai2/task-complexity/ex1',
+                'dependencies': ['Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83'],
             },
             {
-                'id': "id 3",
-                'name': 'name 3',
-                'order': 3,
-                'status': 'completed',
+                'id': 'Intermediate_eval-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83',
+                'name': 'intermediate_eval',
+                'order': 2,
+                'status': 'failed',
                 'started': '2022-10-20 19:45',
-                'ended': '2022-10-21 19:55',
-                'executionURL': 'beaker://ai2/task-complexity/ex3',
-            }]
+                'ended': '2022-10-20 19:59',
+                'executionURL': 'beaker://ai2/task-complexity/ex1',
+                'dependencies': ['Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83', 'Pretraining-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83'],
+            },
+            {
+                'id': 'Finetune-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83',
+                'name': 'finetune',
+                'order': 3,
+                'status': 'running',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 19:59',
+                'executionURL': 'beaker://ai2/task-complexity/ex1',
+                'dependencies': ['Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83', 'Pretraining-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83'],
+            },
+            {
+                'id': 'Final_eval-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83',
+                'name': 'final_eval',
+                'order': 4,
+                'status': 'not started',
+                'started': '2022-10-20 19:45',
+                'ended': '2022-10-20 19:59',
+                'executionURL': 'beaker://ai2/task-complexity/ex1',
+                'dependencies': ['Intermediate_eval-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83', 'Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83', 'Finetune-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83'],
+            },]
         }
         return jsonify(moc_answer)
 

@@ -10,5 +10,5 @@ export interface RunSummary {
 }
 
 export interface Run extends RunSummary {
-    steps: RunStepSummary[];
+    runStepSummaries: RunStepSummary[];
 }

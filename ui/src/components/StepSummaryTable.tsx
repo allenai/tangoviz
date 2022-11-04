@@ -1,5 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
 import { ColumnsType } from 'antd/es/table';
+import { List } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { RangeValue } from 'rc-picker/lib/interface';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -51,8 +53,9 @@ export function RunStepSummaryTable({ data, workspaceId }: Props<RunStepSummary>
         return [
             ...getStatusCol(getSelectFilterBy),
             ...getIdCol(getInputFilterBy, workspaceId),
-            ...getOrderCol(getInputFilterBy),
             ...getNameCol(getInputFilterBy),
+            ...getOrderCol(getInputFilterBy),
+            ...getDependenciesCol(getInputFilterBy, workspaceId),
             ...getStartedCol(getDateFilterBy),
             ...getEndedCol(getDateFilterBy),
             ...getDurationCol<RunStepSummary>(),
@@ -107,6 +110,24 @@ function getIdCol<T extends StepSummary>(
     ];
 }
 
+function getNameCol<T extends RunStepSummary>(
+    getInputFilterBy: GetInputFilterByType<T>
+): ColumnsType<T> {
+    return [
+        {
+            title: getInputFilterBy('Name', (value: string, records: T[]) => {
+                return records.filter((record) => {
+                    return (record.name || '').toLowerCase().includes(value.toLowerCase());
+                });
+            }),
+            dataIndex: 'name',
+            key: 'name',
+            width: 200,
+            sorter: sortByString((item) => item.name),
+        },
+    ];
+}
+
 function getOrderCol<T extends RunStepSummary>(
     getInputFilterBy: GetInputFilterByType<T>
 ): ColumnsType<T> {
@@ -125,20 +146,40 @@ function getOrderCol<T extends RunStepSummary>(
     ];
 }
 
-function getNameCol<T extends RunStepSummary>(
-    getInputFilterBy: GetInputFilterByType<T>
+function getDependenciesCol<T extends RunStepSummary>(
+    getInputFilterBy: GetInputFilterByType<T>,
+    workspaceId: string
 ): ColumnsType<T> {
     return [
         {
-            title: getInputFilterBy('Name', (value: string, records: T[]) => {
+            title: getInputFilterBy('Dependencies', (value: string, records: T[]) => {
                 return records.filter((record) => {
-                    return (record.name || '').toLowerCase().includes(value.toLowerCase());
+                    return record.dependencies.includes(value.toLowerCase());
                 });
             }),
-            dataIndex: 'name',
-            key: 'name',
-            width: 200,
-            sorter: sortByString((item) => item.name),
+            dataIndex: 'dependencies',
+            key: 'dependencies',
+            width: 100,
+            render: (val, _) => (
+                <ScrollDiv>
+                    {val.length ? (
+                        <List
+                            size="small"
+                            dataSource={val}
+                            pagination={false}
+                            renderItem={(d: string) => {
+                                return (
+                                    <List.Item>
+                                        <a href={`/workspace/${workspaceId}/step/${btoa(d)}`}>
+                                            {d}
+                                        </a>
+                                    </List.Item>
+                                );
+                            }}
+                        />
+                    ) : null}
+                </ScrollDiv>
+            ),
         },
     ];
 }
@@ -200,3 +241,8 @@ function getDurationCol<T extends StepSummary>(): ColumnsType<T> {
         },
     ];
 }
+
+const ScrollDiv = styled.div`
+    max-height: 122px;
+    overflow-y: auto;
+`;

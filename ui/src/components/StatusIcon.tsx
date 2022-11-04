@@ -17,19 +17,39 @@ export interface Props {
 export const StatusIcon = ({ status }: Props) => {
     switch (status) {
         case 'not started': {
-            return <FieldTimeOutlined />;
+            return (
+                <Colored status={status}>
+                    <FieldTimeOutlined />
+                </Colored>
+            );
         }
         case 'running': {
-            return <LoadingOutlined />;
+            return (
+                <Colored status={status}>
+                    <LoadingOutlined />
+                </Colored>
+            );
         }
         case 'completed': {
-            return <Completed />;
+            return (
+                <Colored status={status}>
+                    <CheckSquareOutlined />
+                </Colored>
+            );
         }
         case 'failed': {
-            return <Failed />;
+            return (
+                <Colored status={status}>
+                    <WarningOutlined />
+                </Colored>
+            );
         }
         case 'uncacheable': {
-            return <Uncacheable />;
+            return (
+                <Colored status={status}>
+                    <QuestionCircleOutlined />
+                </Colored>
+            );
         }
         default: {
             return <></>;
@@ -37,30 +57,45 @@ export const StatusIcon = ({ status }: Props) => {
     }
 };
 
+export const getColorIdFromStatus = (status?: Status): string => {
+    switch (status) {
+        case 'not started': {
+            return 'O8';
+        }
+        case 'running': {
+            return 'B6';
+        }
+        case 'completed': {
+            return 'G8';
+        }
+        case 'failed': {
+            return 'R8';
+        }
+        case 'uncacheable': {
+            return 'N9';
+        }
+        default: {
+            return 'N9';
+        }
+    }
+};
+
 export const StatusIconWithLabel = ({ status }: Props) => {
     return (
-        <Container>
+        <StatusContainer>
             <StatusIcon status={status} />
             {status}
-        </Container>
+        </StatusContainer>
     );
 };
 
-const Completed = styled(CheckSquareOutlined)`
-    color: ${({ theme }) => theme.color.G6};
-`;
-
-const Failed = styled(WarningOutlined)`
-    color: ${({ theme }) => theme.color.O6};
-`;
-
-const Uncacheable = styled(QuestionCircleOutlined)`
-    color: ${({ theme }) => theme.color.R6};
-`;
-
-const Container = styled.span`
+export const StatusContainer = styled.span`
     display: flex;
     flex-wrap: wrap;
     gap: ${({ theme }) => theme.spacing.sm};
     align-items: center;
+`;
+
+const Colored = styled.span<{ status: Status }>`
+    color: ${({ theme, status }) => theme.color[getColorIdFromStatus(status)]};
 `;

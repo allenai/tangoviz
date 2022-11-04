@@ -8,6 +8,7 @@ export interface StepSummary {
     ended?: string;
     executionURL?: string;
     dependencies: string[]; // ids of dependent steps
+    logURL: string;
 }
 
 export interface RunStepSummary extends StepSummary {
@@ -18,5 +19,4 @@ export interface RunStepSummary extends StepSummary {
 export interface Step extends StepSummary {
     runs: RunSummary[];
     artifacts: { [file: string]: number };
-    logURL: string;
 }
