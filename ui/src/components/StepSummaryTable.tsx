@@ -14,7 +14,7 @@ import {
     sortByString,
     sortByNumber,
 } from './BaseTable';
-import { StepSummary, RunStepSummary } from '../api/Step';
+import { StepInfo, RunStepInfo } from '../api/Step';
 import { RelativeTime, RelativeDuration } from './Formatters';
 import { StatusIconWithLabel } from '../components/StatusIcon';
 import { StatusArray } from '../api/Status';
@@ -26,12 +26,12 @@ interface Props<T> {
     workspaceId: string;
 }
 
-export function StepSummaryTable({ data, workspaceId }: Props<StepSummary>) {
+export function StepInfoTable({ data, workspaceId }: Props<StepInfo>) {
     const getColumns = (
-        getInputFilterBy: GetInputFilterByType<StepSummary>,
-        getSelectFilterBy: GetSelectFilterByType<StepSummary>,
-        getDateFilterBy: GetDateFilterByType<StepSummary>
-    ): ColumnsType<StepSummary> => {
+        getInputFilterBy: GetInputFilterByType<StepInfo>,
+        getSelectFilterBy: GetSelectFilterByType<StepInfo>,
+        getDateFilterBy: GetDateFilterByType<StepInfo>
+    ): ColumnsType<StepInfo> => {
         return [
             ...getStatusCol(getSelectFilterBy),
             ...getIdCol(getInputFilterBy, workspaceId),
@@ -41,15 +41,15 @@ export function StepSummaryTable({ data, workspaceId }: Props<StepSummary>) {
         ];
     };
 
-    return <BaseTable<StepSummary> dataKey="id" data={data} getColumns={getColumns} />;
+    return <BaseTable<StepInfo> dataKey="id" data={data} getColumns={getColumns} />;
 }
 
-export function RunStepSummaryTable({ data, workspaceId }: Props<RunStepSummary>) {
+export function RunStepInfoTable({ data, workspaceId }: Props<RunStepInfo>) {
     const getColumns = (
-        getInputFilterBy: GetInputFilterByType<RunStepSummary>,
-        getSelectFilterBy: GetSelectFilterByType<RunStepSummary>,
-        getDateFilterBy: GetDateFilterByType<RunStepSummary>
-    ): ColumnsType<RunStepSummary> => {
+        getInputFilterBy: GetInputFilterByType<RunStepInfo>,
+        getSelectFilterBy: GetSelectFilterByType<RunStepInfo>,
+        getDateFilterBy: GetDateFilterByType<RunStepInfo>
+    ): ColumnsType<RunStepInfo> => {
         return [
             ...getStatusCol(getSelectFilterBy),
             ...getIdCol(getInputFilterBy, workspaceId),
@@ -58,14 +58,14 @@ export function RunStepSummaryTable({ data, workspaceId }: Props<RunStepSummary>
             ...getDependenciesCol(getInputFilterBy, workspaceId),
             ...getStartedCol(getDateFilterBy),
             ...getEndedCol(getDateFilterBy),
-            ...getDurationCol<RunStepSummary>(),
+            ...getDurationCol<RunStepInfo>(),
         ];
     };
 
-    return <BaseTable<RunStepSummary> dataKey="id" data={data} getColumns={getColumns} />;
+    return <BaseTable<RunStepInfo> dataKey="id" data={data} getColumns={getColumns} />;
 }
 
-function getStatusCol<T extends StepSummary>(
+function getStatusCol<T extends StepInfo>(
     getSelectFilterBy: GetSelectFilterByType<T>
 ): ColumnsType<T> {
     return [
@@ -88,7 +88,7 @@ function getStatusCol<T extends StepSummary>(
     ];
 }
 
-function getIdCol<T extends StepSummary>(
+function getIdCol<T extends StepInfo>(
     getInputFilterBy: GetInputFilterByType<T>,
     workspaceId: string
 ): ColumnsType<T> {
@@ -110,7 +110,7 @@ function getIdCol<T extends StepSummary>(
     ];
 }
 
-function getNameCol<T extends RunStepSummary>(
+function getNameCol<T extends RunStepInfo>(
     getInputFilterBy: GetInputFilterByType<T>
 ): ColumnsType<T> {
     return [
@@ -128,7 +128,7 @@ function getNameCol<T extends RunStepSummary>(
     ];
 }
 
-function getOrderCol<T extends RunStepSummary>(
+function getOrderCol<T extends RunStepInfo>(
     getInputFilterBy: GetInputFilterByType<T>
 ): ColumnsType<T> {
     return [
@@ -146,7 +146,7 @@ function getOrderCol<T extends RunStepSummary>(
     ];
 }
 
-function getDependenciesCol<T extends RunStepSummary>(
+function getDependenciesCol<T extends RunStepInfo>(
     getInputFilterBy: GetInputFilterByType<T>,
     workspaceId: string
 ): ColumnsType<T> {
@@ -184,7 +184,7 @@ function getDependenciesCol<T extends RunStepSummary>(
     ];
 }
 
-function getStartedCol<T extends StepSummary>(
+function getStartedCol<T extends StepInfo>(
     getDateFilterBy: GetDateFilterByType<T>
 ): ColumnsType<T> {
     return [
@@ -206,7 +206,7 @@ function getStartedCol<T extends StepSummary>(
     ];
 }
 
-function getEndedCol<T extends StepSummary>(
+function getEndedCol<T extends StepInfo>(
     getDateFilterBy: GetDateFilterByType<T>
 ): ColumnsType<T> {
     return [
@@ -228,7 +228,7 @@ function getEndedCol<T extends StepSummary>(
     ];
 }
 
-function getDurationCol<T extends StepSummary>(): ColumnsType<T> {
+function getDurationCol<T extends StepInfo>(): ColumnsType<T> {
     return [
         {
             title: 'Duration',

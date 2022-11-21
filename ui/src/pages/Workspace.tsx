@@ -3,7 +3,7 @@ import useFetch from 'use-http';
 import { useParams } from 'react-router-dom';
 
 import { RunSummaryTable } from '../components/RunSummaryTable';
-import { StepSummaryTable } from '../components/StepSummaryTable';
+import { StepInfoTable } from '../components/StepInfoTable';
 import { Workspace as WorkspaceModel } from '../api/Workspace';
 import { noCacheOptions } from '../api/Api';
 import { useIntervalAsync, FetchInterval } from '../api/useIntervalAsync';
@@ -51,9 +51,9 @@ export const Workspace = () => {
                     <RunSummaryTable workspaceId={wsid} data={response.data.runs}></RunSummaryTable>
 
                     <h4>Steps</h4>
-                    <StepSummaryTable
+                    <StepInfoTable
                         workspaceId={wsid}
-                        data={response.data.allStepSummaries}></StepSummaryTable>
+                        data={response.data.allStepInfos}></StepInfoTable>
                 </>
             ) : null}
         </div>

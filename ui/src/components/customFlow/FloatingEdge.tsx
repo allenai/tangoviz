@@ -7,13 +7,13 @@ import styled from 'styled-components';
 import { getSmartEdge } from '@tisoap/react-flow-smart-edge';
 
 import { getEdgeParams } from './utils';
-import { RunStepSummary } from '../../api/Step';
+import { RunStepInfo } from '../../api/Step';
 import { getColorIdFromStatus } from '../StatusIcon';
 
 const nodeSelector = (s: ReactFlowState) => s.nodeInternals;
 
 export interface FloatingEdgeData {
-    runStepSummary: RunStepSummary;
+    runStepInfo: RunStepInfo;
 }
 
 export const FloatingEdge: FC<EdgeProps<FloatingEdgeData>> = (props) => {
@@ -49,7 +49,7 @@ export const FloatingEdge: FC<EdgeProps<FloatingEdgeData>> = (props) => {
     return (
         <g className="react-flow__connection">
             <ColorPath
-                runStepSummary={data?.runStepSummary}
+                runStepInfo={data?.runStepInfo}
                 id={id}
                 className="react-flow__edge-path"
                 d={svgPathString}
@@ -61,8 +61,8 @@ export const FloatingEdge: FC<EdgeProps<FloatingEdgeData>> = (props) => {
     );
 };
 
-const ColorPath = styled.path<{ runStepSummary?: RunStepSummary }>`
-    stroke: ${({ theme, runStepSummary }) =>
-        theme.color[getColorIdFromStatus(runStepSummary?.status)]};
+const ColorPath = styled.path<{ runStepInfo?: RunStepInfo }>`
+    stroke: ${({ theme, runStepInfo }) =>
+        theme.color[getColorIdFromStatus(runStepInfo?.status)]};
     stroke-width: 4;
 `;
