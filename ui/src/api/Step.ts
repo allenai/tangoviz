@@ -1,7 +1,7 @@
 import { Status } from './Status';
 import { RunSummary } from './Run';
 
-export interface StepSummary {
+export interface StepInfo {
     id: string;
     status: Status;
     started?: string;
@@ -11,12 +11,12 @@ export interface StepSummary {
     logURL: string;
 }
 
-export interface RunStepSummary extends StepSummary {
+export interface RunStepInfo extends StepInfo {
     name: string;
     order: number;
 }
 
-export interface Step extends StepSummary {
+export interface Step extends StepInfo {
     runs: RunSummary[];
     artifacts: { [file: string]: number };
 }

@@ -3,7 +3,7 @@ import useFetch from 'use-http';
 import { useParams } from 'react-router-dom';
 import { ReactFlowProvider } from 'reactflow';
 
-import { RunStepSummaryTable } from '../components/StepSummaryTable';
+import { RunStepInfoTable } from '../components/StepInfoTable';
 import { Run as RunModel } from '../api/Run';
 import { noCacheOptions } from '../api/Api';
 import { useIntervalAsync, FetchInterval } from '../api/useIntervalAsync';
@@ -41,13 +41,13 @@ export const Run = () => {
                     <RunDetails run={response.data} />
 
                     <h4>Steps</h4>
-                    <RunStepSummaryTable
+                    <RunStepInfoTable
                         workspaceId={wsid}
-                        data={response.data.runStepSummaries}></RunStepSummaryTable>
+                        data={response.data.runStepInfos}></RunStepInfoTable>
 
                     <h4>Dependency Graph</h4>
                     <ReactFlowProvider>
-                        <Flow runStepSummaries={response.data.runStepSummaries} />
+                        <Flow runStepInfos={response.data.runStepInfos} />
                     </ReactFlowProvider>
                 </>
             ) : null}

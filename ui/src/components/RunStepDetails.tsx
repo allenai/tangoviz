@@ -4,32 +4,32 @@ import { Descriptions } from 'antd';
 
 import { RelativeTime, RelativeDuration } from './Formatters';
 import { StatusIconWithLabel } from './StatusIcon';
-import { RunStepSummary } from '../api/Step';
+import { RunStepInfo } from '../api/Step';
 
 interface Props {
-    runStepSummary: RunStepSummary;
+    runStepInfo: RunStepInfo;
 }
 
-export function RunStepDetails({ runStepSummary }: Props) {
+export function RunStepDetails({ runStepInfo }: Props) {
     return (
         <OverflowDescription size="small" bordered>
             <Descriptions.Item span={3} label="Status">
-                <StatusIconWithLabel status={runStepSummary.status} />
+                <StatusIconWithLabel status={runStepInfo.status} />
             </Descriptions.Item>
             <Descriptions.Item span={3} label="Started">
-                <RelativeTime date={runStepSummary.started} />
+                <RelativeTime date={runStepInfo.started} />
             </Descriptions.Item>
             <Descriptions.Item span={3} label="Ended">
-                <RelativeTime date={runStepSummary.started} />
+                <RelativeTime date={runStepInfo.started} />
             </Descriptions.Item>
             <Descriptions.Item span={3} label="Duration">
-                <RelativeDuration start={runStepSummary.started} end={runStepSummary.ended} />
+                <RelativeDuration start={runStepInfo.started} end={runStepInfo.ended} />
             </Descriptions.Item>
             <Descriptions.Item span={3} label="Execution">
-                {<a href={runStepSummary.executionURL}>{runStepSummary.executionURL}</a>}
+                {<a href={runStepInfo.executionURL}>{runStepInfo.executionURL}</a>}
             </Descriptions.Item>
             <Descriptions.Item span={3} label="Logs">
-                {<a href={runStepSummary.logURL}>{runStepSummary.logURL}</a>}
+                {<a href={runStepInfo.logURL}>{runStepInfo.logURL}</a>}
             </Descriptions.Item>
         </OverflowDescription>
     );

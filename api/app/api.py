@@ -52,7 +52,7 @@ def create_api() -> Blueprint:
                 'started': '2022-10-21 17:45',
                 'stepStatus': '100 running, 43 completed, 5 failed, 35 not started',
             }],
-            'allStepSummaries': [{
+            'allStepInfos': [{
                 'id': 'id 1',
                 'status': 'completed',
                 'started': '2022-10-20 19:45',
@@ -88,7 +88,7 @@ def create_api() -> Blueprint:
             'started': '2022-10-20 19:45',
             'ended': '2022-10-20 19:45',
             'stepStatus': '3 completed',
-            'runStepSummaries': [
+            'runStepInfos': [
             {
                 'id': 'Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83',
                 'name': 'prepare',

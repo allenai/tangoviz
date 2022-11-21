@@ -15,7 +15,7 @@ import 'reactflow/dist/style.css';
 
 import { CustomNode, CustomNodeData } from './customFlow/CustomNode';
 import { FloatingEdge, FloatingEdgeData } from './customFlow/FloatingEdge';
-import { RunStepSummary } from '../api/Step';
+import { RunStepInfo } from '../api/Step';
 
 type MyNode = Node<CustomNodeData>;
 type MyEdge = Edge<FloatingEdgeData>;
@@ -79,31 +79,31 @@ const getLayoutedElements = (nodes: MyNode[], edges: MyEdge[], direction = Orien
 };
 
 interface Props {
-    runStepSummaries: RunStepSummary[];
+    runStepInfos: RunStepInfo[];
 }
 
-export const Flow = ({ runStepSummaries }: Props) => {
+export const Flow = ({ runStepInfos }: Props) => {
     const onExpand = (d: CustomNodeData) => {
         d.isExpanded = !d.isExpanded;
         onLayout(Orientation.LR); // todo: if we put back orientation, this need to be fixed
     };
 
-    const initialNodes: MyNode[] = runStepSummaries.map((d) => {
+    const initialNodes: MyNode[] = runStepInfos.map((d) => {
         return {
             id: d.id,
             type: 'customNode',
-            data: { runStepSummary: d, onExpand: onExpand },
+            data: { runStepInfo: d, onExpand: onExpand },
             position: origin,
         };
     });
-    const runStepSummaryDict: { [id: string]: RunStepSummary } = {};
+    const runStepInfoDict: { [id: string]: RunStepInfo } = {};
 
-    runStepSummaries.forEach((step) => {
-        runStepSummaryDict[step.id] = step;
+    runStepInfos.forEach((step) => {
+        runStepInfoDict[step.id] = step;
     });
 
     const initialEdges: MyEdge[] = [];
-    runStepSummaries.forEach((step) => {
+    runStepInfos.forEach((step) => {
         step.dependencies.forEach((dep) => {
             initialEdges.push({
                 id: `${step.id}_${dep}`,
@@ -111,7 +111,7 @@ export const Flow = ({ runStepSummaries }: Props) => {
                 target: step.id,
                 type: 'floatingEdge',
                 animated: true,
-                data: { runStepSummary: runStepSummaryDict[dep] },
+                data: { runStepInfo: runStepInfoDict[dep] },
             });
         });
     });

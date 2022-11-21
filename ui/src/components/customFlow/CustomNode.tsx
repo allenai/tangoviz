@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { Collapse } from 'antd';
 
 import { RunStepDetails } from '../RunStepDetails';
-import { RunStepSummary } from '../../api/Step';
+import { RunStepInfo } from '../../api/Step';
 import { StatusIcon, StatusContainer, getColorIdFromStatus } from '../StatusIcon';
 
 export interface CustomNodeData {
-    runStepSummary: RunStepSummary;
+    runStepInfo: RunStepInfo;
     onExpand: (d: CustomNodeData) => void;
     isExpanded?: boolean;
 }
@@ -24,19 +24,19 @@ export const CustomNode = ({
     isConnectable,
 }: Props) => {
     return (
-        <Node runStepSummary={data.runStepSummary}>
+        <Node runStepInfo={data.runStepInfo}>
             <Handle type="target" id="a" position={targetPosition} isConnectable={isConnectable} />
 
             <FullCollapse onChange={() => data.onExpand(data)}>
                 <Collapse.Panel
                     header={
                         <StatusContainer>
-                            <StatusIcon status={data.runStepSummary.status} />
-                            {data.runStepSummary.name}
+                            <StatusIcon status={data.runStepInfo.status} />
+                            {data.runStepInfo.name}
                         </StatusContainer>
                     }
-                    key={data.runStepSummary.id}>
-                    <RunStepDetails runStepSummary={data.runStepSummary} />
+                    key={data.runStepInfo.id}>
+                    <RunStepDetails runStepInfo={data.runStepInfo} />
                 </Collapse.Panel>
             </FullCollapse>
 
@@ -45,11 +45,11 @@ export const CustomNode = ({
     );
 };
 
-const Node = styled.div<{ runStepSummary: RunStepSummary }>`
+const Node = styled.div<{ runStepInfo: RunStepInfo }>`
     width: 300px;
     max-height: 300px;
-    outline: ${({ theme, runStepSummary }) =>
-        `2px solid ${theme.color[getColorIdFromStatus(runStepSummary.status)]}`};
+    outline: ${({ theme, runStepInfo }) =>
+        `2px solid ${theme.color[getColorIdFromStatus(runStepInfo.status)]}`};
 
     filter: drop-shadow(4px 8px 3px rgba(0, 0, 0, 0.1));
     &:hover {

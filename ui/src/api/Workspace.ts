@@ -1,8 +1,8 @@
 import { RunSummary } from './Run';
-import { StepSummary } from './Step';
+import { StepInfo } from './Step';
 
 export interface Workspace {
     url: string; // id
     runs: RunSummary[];
-    allStepSummaries: StepSummary[];
+    allStepInfos: StepInfo[];
 }
