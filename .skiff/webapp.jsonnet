@@ -156,7 +156,7 @@ function(
                     http: {
                         paths: [
                             {
-                                pathType: 'ImplementationSpecific',
+                                pathType: 'Prefix',
                                 backend: {
                                     service: {
                                         name: fullyQualifiedName,
