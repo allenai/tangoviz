@@ -157,6 +157,7 @@ function(
                         paths: [
                             {
                                 pathType: 'Prefix',
+                                path: '/',
                                 backend: {
                                     service: {
                                         name: fullyQualifiedName,
