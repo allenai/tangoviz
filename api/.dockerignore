@@ -6,3 +6,6 @@
 # Docker artifacts
 Dockerfile
 
+# Dev files
+dev-requirements.txt
+tests/
