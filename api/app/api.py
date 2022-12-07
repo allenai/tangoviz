@@ -9,11 +9,13 @@ logger = logging.getLogger("uvicorn")
 
 app = FastAPI()
 
-# This route simply tells anything that depends on the API that it's
-# working. If you'd like to redefine this behavior that's ok, just
-# make sure a 200 is returned.
+
 @app.get("/")
 def index() -> str:
+    """
+    This route simply tells anything that depends on the API that it's working.
+    """
+    # If you'd like to redefine this behavior that's ok, just make sure a 200 is returned.
     return "All good :)"
 
 
