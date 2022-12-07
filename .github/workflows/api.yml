@@ -1,0 +1,116 @@
+name: API
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+env:
+  CACHE_PREFIX: v1  # Change this to invalidate existing cache.
+  PYTHONPATH: ./
+
+jobs:
+  checks:
+    name: ${{ matrix.task.name }}
+    runs-on: [ubuntu-latest]
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.9']
+        task:
+          - name: Test
+            run: |
+              cd api
+              pytest -v --color=yes --durations 3 tests/
+
+          - name: Type check
+            run: |
+              cd api
+              mypy .
+
+          - name: Lint
+            run: |
+              cd api
+              flake8 .
+
+          - name: Style
+            run: |
+              cd api
+              isort --check .
+              black --check .
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install prerequisites
+        run: |
+          pip install --upgrade pip setuptools wheel virtualenv
+
+      - name: Set build variables
+        shell: bash
+        run: |
+          set -e
+          # Get the exact Python version to use in the cache key.
+          echo "PYTHON_VERSION=$(python --version)" >> $GITHUB_ENV
+          echo "RUNNER_ARCH=$(uname -m)" >> $GITHUB_ENV
+
+      - name: Restore virtual environment
+        uses: actions/cache@v3
+        id: virtualenv-cache
+        with:
+          path: .venv
+          key: ${{ env.CACHE_PREFIX }}-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('api/*requirements.txt') }}
+
+      - name: Setup virtual environment (no cache hit)
+        if: steps.virtualenv-cache.outputs.cache-hit != 'true'
+        run: |
+          test -d .venv || virtualenv -p $(which python) --copies --reset-app-data .venv
+
+      - name: Install dependencies (no cache hit)
+        if: steps.virtualenv-cache.outputs.cache-hit != 'true'
+        run: |
+          . .venv/bin/activate
+          pip install -r api/requirements.txt -r api/dev-requirements.txt
+
+      - name: Show environment info
+        run: |
+          . .venv/bin/activate
+          echo "========= Python location ==========="
+          which python
+          echo "========= Python version ============"
+          python --version
+          echo "========= Python packages ==========="
+          pip freeze
+          echo "========= Tango installation ========"
+          tango info
+
+      - name: Restore mypy cache
+        if: matrix.task.name == 'Type check'
+        uses: actions/cache@v3
+        with:
+          path: .mypy_cache
+          key: mypy-${{ env.CACHE_PREFIX }}-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('api/*requirements.txt') }}-${{ hashFiles('api/**.py') }}
+          restore-keys: |
+            mypy-${{ env.CACHE_PREFIX }}-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('api/*requirements.txt') }}
+            mypy-${{ env.CACHE_PREFIX }}-${{ runner.os }}-${{ env.PYTHON_VERSION }}
+
+      - name: ${{ matrix.task.name }}
+        run: |
+          . .venv/bin/activate
+          ${{ matrix.task.run }}
