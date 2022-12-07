@@ -1,4 +1,5 @@
 ai2-tango[beaker,wandb]>=1.1.0
 fastapi[all]==0.88.0
+pydantic==1.9.1
 uvicorn==0.20.0
 python-json-logger==2.0.2

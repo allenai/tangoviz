@@ -1,13 +1,22 @@
 import logging
+from functools import lru_cache
+from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from tango import Workspace
 
-from .utils import setup_logging
+from .types import *
+from .util import atob, setup_logging
 
 setup_logging()
 logger = logging.getLogger("uvicorn")
 
 app = FastAPI()
+
+
+@lru_cache(maxsize=8)
+def get_cached_workspace(wsid: str) -> Workspace:
+    return Workspace.from_url(atob(wsid))
 
 
 @app.get("/")
@@ -19,184 +28,54 @@ def index() -> str:
     return "All good :)"
 
 
-@app.get("/api/workspace/{wsid}")
-def get_workspace(wsid: str):
-    # todo: fill in moc with real data
-    moc_answer = {
-        "url": wsid,
-        "runs": [
-            {
-                "name": "name 1",
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 21:45",
-                "stepStatus": "25 completed",
-            },
-            {
-                "name": "name 2",
-                "status": "failed",
-                "started": "2022-10-19 18:42",
-                "ended": "2022-10-19 19:18",
-                "stepStatus": "20 completed, 5 failed",
-            },
-            {
-                "name": "name 3",
-                "status": "running",
-                "started": "2022-10-21 17:45",
-                "stepStatus": "100 running, 43 completed, 5 failed, 35 not started",
-            },
-        ],
-        "allStepInfos": [
-            {
-                "id": "id 1",
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-21 19:45",
-                "executionURL": "beaker://ai2/task-complexity/ex1",
-                "dependencies": [],
-            },
-            {
-                "id": "id 2",
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-21 19:45",
-                "executionURL": "beaker://ai2/task-complexity/ex2",
-                "dependencies": ["id 1"],
-            },
-            {
-                "id": "id 3",
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 21:45",
-                "executionURL": "beaker://ai2/task-complexity/ex3",
-                "dependencies": ["id 1", "id 2"],
-            },
-        ],
-    }
-    return moc_answer
+@app.get("/api/workspace/{wsid}", response_model=GetWorkspaceOutput)
+def get_workspace(wsid: str) -> GetWorkspaceOutput:
+    workspace = get_cached_workspace(wsid)
+
+    runs: list[RunInfo] = []
+    step_infos: dict[str, StepInfo] = {}
+
+    for run in sorted(workspace.registered_runs().values(), key=lambda x: x.start_date):
+        runs.append(RunInfo.from_tango_run(run))
+        for step_info in run.steps.values():
+            step_infos[step_info.unique_id] = StepInfo.from_tango_step_info(step_info)
+
+    return GetWorkspaceOutput(
+        url=workspace.url,
+        runs=runs,
+        allStepInfos=list(step_infos.values()),
+    )
 
 
-@app.get("/api/workspace/{wsid}/run/{rid}")
-def get_run(wsid: str, rid: str):
-    # todo: fill in moc with real data
-    moc_answer = {
-        "name": "name " + rid,
-        "status": "completed",
-        "started": "2022-10-20 19:45",
-        "ended": "2022-10-20 19:45",
-        "stepStatus": "3 completed",
-        "runStepInfos": [
-            {
-                "id": "Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                "name": "prepare",
-                "order": 1,
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 19:59",
-                "executionURL": "beaker://ai2/task-complexity/ex1",
-                "dependencies": [],
-            },
-            {
-                "id": "Pretraining-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                "name": "pretrain",
-                "order": 2,
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 19:59",
-                "executionURL": "beaker://ai2/task-complexity/ex1",
-                "dependencies": ["Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83"],
-            },
-            {
-                "id": "Intermediate_eval-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                "name": "intermediate_eval",
-                "order": 2,
-                "status": "failed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 19:59",
-                "executionURL": "beaker://ai2/task-complexity/ex1",
-                "dependencies": [
-                    "Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                    "Pretraining-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                ],
-            },
-            {
-                "id": "Finetune-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                "name": "finetune",
-                "order": 3,
-                "status": "running",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 19:59",
-                "executionURL": "beaker://ai2/task-complexity/ex1",
-                "dependencies": [
-                    "Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                    "Pretraining-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                ],
-            },
-            {
-                "id": "Final_eval-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                "name": "final_eval",
-                "order": 4,
-                "status": "not started",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 19:59",
-                "executionURL": "beaker://ai2/task-complexity/ex1",
-                "dependencies": [
-                    "Intermediate_eval-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                    "Preparing-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                    "Finetune-002rep-45jdfuf75ky836fusdtr75ikd95psi7ri83",
-                ],
-            },
-        ],
-    }
-    return moc_answer
+@app.get("/api/workspace/{wsid}/run/{rid}", response_model=GetRunOutput)
+def get_run(wsid: str, rid: str) -> GetRunOutput:
+    workspace = get_cached_workspace(wsid)
+    run_name = atob(rid)
+    try:
+        run = workspace.registered_run(run_name)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Run '{run_name}' not found")
+    return GetRunOutput.from_tango_run(run)
 
 
-@app.route("/api/workspace/{wsid}/step/{sid}")
-def get_step(wsid: str, sid: str):
-    # todo: fill in moc with real data
-    moc_answer = {
-        "id": sid,
-        "status": "completed",
-        "started": "2022-10-20 19:45",
-        "ended": "2022-10-20 19:45",
-        "executionURL": "beaker://ai2/task-complexity/ex1",
-        "runs": [
-            {
-                "name": "name 1",
-                "status": "completed",
-                "started": "2022-10-20 19:45",
-                "ended": "2022-10-20 21:55",
-                "stepStatus": "25 completed",
-            },
-            {
-                "name": "name 2",
-                "status": "failed",
-                "started": "2022-10-19 18:42",
-                "ended": "2022-10-19 18:55",
-                "stepStatus": "20 completed, 5 failed",
-            },
-            {
-                "name": "name 3",
-                "status": "running",
-                "started": "2022-10-21 17:45",
-                "stepStatus": "100 running, 43 completed, 5 failed, 35 not started",
-            },
-        ],
-        "artifacts": {
-            "/sqlite/test.zip": 1650001,
-            "/sqlite/train.zip": 16440001,
-            "/sqlite/val.zip": 987001,
-            "/logs/pass1.txt": 165001,
-            "/logs/pass2.txt": 260001,
-        },
-        "logURL": "beaker://ai2/task-complexity/ggt/log.txt",
-    }
-    return moc_answer
+@app.get("/api/workspace/{wsid}/step/{sid}", response_model=GetStepOutput)
+def get_step(wsid: str, sid: str) -> GetStepOutput:
+    workspace = get_cached_workspace(wsid)
+    step_info: Optional[StepInfo] = None
+    step_id = atob(sid)
+    runs: list[RunInfo] = []
+    for run in sorted(workspace.registered_runs().values(), key=lambda x: x.start_date):
+        for run_step_info in run.steps.values():
+            if run_step_info.unique_id == step_id:
+                step_info = StepInfo.from_tango_step_info(run_step_info)
+                runs.append(RunInfo.from_tango_run(run))
+                break
+    if step_info is None:
+        raise HTTPException(status_code=404, detail=f"No step '{step_id}' found")
+    return GetStepOutput(**step_info.dict(), runs=runs)
 
 
-# todo: this api is expected to return a downloadable file
-# where 'aid' is the artifact folder path like '/sqlite/test'
-# and wsid is the workspace id
+# TODO: Get rid of this for now
 @app.get("/api/workspace/{wsid}/artifact/{aid}")
 def get_artifact(wsid: str, aid: str):
     moc_answer = {"jon": "test"}
