@@ -15,7 +15,6 @@ services:
             # makes debugging easier.
             - PYTHONUNBUFFERED=1
             - LOG_LEVEL=DEBUG
-            - FLASK_ENV=development
     ui:
         build: ./ui
         # We can't mount the entire UI directory, since JavaScript dependencies

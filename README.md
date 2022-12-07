@@ -6,15 +6,14 @@ AI2 Tango allows you to build machine learning experiments out of steps that can
 reused and repeated. Users can write their own steps simply by wrapping common
 Python functions. Tango also comes with a library of pre-built steps for training
 models, working with datasets, and running evaluations. It is integrated with
-popular tools like the Huggingface transformers library, PyTorch Lightning, and
-others.
+popular tools like PyTorch and the Huggingface transformers library.
 
 Tango’s built-in mechanism for storing and retrieving results makes sure that
 researchers can stay flexible when pursuing another idea. No work is duplicated,
 past results can be found easily, and the way a result was obtained is stored along
 with the result itself.
 
-* A Python, [Flask](http://flask.pocoo.org/) API server.
+* A Python, [FastAPI](https://fastapi.tiangolo.com/) server.
 * A [TypeScript](https://www.typescriptlang.org/), [ReactJS](https://reactjs.org/)
   and [Varnish](http://github.com/allenai/varnish) based user interface.
 * An [NGINX](https://www.nginx.com/) web server for serving static assets and

@@ -6,3 +6,9 @@
 # Docker artifacts
 Dockerfile
 
+# Dev files
+dev-requirements.txt
+tests/
+.flake8
+mypy.ini
+pyproject.toml
