@@ -16,7 +16,11 @@ app = FastAPI()
 
 @lru_cache(maxsize=8)
 def get_cached_workspace(wsid: str) -> Workspace:
-    return Workspace.from_url(atob(wsid))
+    try:
+        return Workspace.from_url(atob(wsid))
+    except Exception as exc:
+        logger.exception(exc)
+        raise HTTPException(status_code=500, detail=f"{exc.__class__.__name__}: {str(exc)}")
 
 
 @app.get("/")
