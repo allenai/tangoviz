@@ -30,9 +30,20 @@ class StrEnum(str, Enum):
 
 
 class RunStatus(StrEnum):
-    completed = "completed"
-    failed = "failed"
+    incomplete = "incomplete"
+    """The run hasn't started or was stopped early."""
+
     running = "running"
+    """Some steps are still running."""
+
+    completed = "completed"
+    """All cacheable steps completed successfully."""
+
+    failed = "failed"
+    """At least one step failed."""
+
+    uncacheable = "uncacheable"
+    """All steps are uncacheable, so there is no status."""
 
 
 class RunInfo(BaseModel):
@@ -40,17 +51,16 @@ class RunInfo(BaseModel):
     status: RunStatus
     stepStatus: str
     started: datetime
-    # TODO: remove this? We don't have an end date for runs in Tango. We could try
-    # to infer the end time but that could get messy.
     ended: Optional[datetime] = None
 
     @classmethod
     def from_tango_run(cls, run: TangoRun) -> RunInfo:
-        status = RunStatus.completed
+        ended: Optional[datetime] = None
         running = 0
         failed = 0
         completed = 0
         incomplete = 0
+        uncacheable = 0
         for step_info in run.steps.values():
             if step_info.state == TangoStepState.RUNNING:
                 running += 1
@@ -60,6 +70,13 @@ class RunInfo(BaseModel):
                 completed += 1
             elif step_info.state == TangoStepState.INCOMPLETE:
                 incomplete += 1
+            elif step_info.state == TangoStepState.UNCACHEABLE:
+                uncacheable += 1
+            if step_info.end_time_local is not None:
+                if ended is not None:
+                    ended = max(ended, step_info.end_time_local)
+                else:
+                    ended = step_info.end_time_local
 
         step_status: list[str] = []
         if running > 0:
@@ -71,11 +88,29 @@ class RunInfo(BaseModel):
         if incomplete > 0:
             step_status.append(f"{incomplete} incomplete")
 
+        status: RunStatus
+        if failed > 0:
+            status = RunStatus.running
+        elif running > 0:
+            status = RunStatus.running
+        elif incomplete > 0:
+            status = RunStatus.incomplete
+        elif completed > 0:
+            status = RunStatus.completed
+        elif uncacheable > 0:
+            status = RunStatus.uncacheable
+        else:
+            status = RunStatus.completed
+
+        if incomplete > 0 or running > 0:
+            ended = None
+
         return cls(
             name=run.name,
             status=status,
             stepStatus=", ".join(step_status),
             started=run.start_date.astimezone(local_timezone()),
+            ended=ended,
         )
 
 
@@ -101,8 +136,7 @@ class StepInfo(BaseModel):
     status: StepStatus
     started: Optional[datetime] = None
     ended: Optional[datetime] = None
-    # TODO: replace with result location?
-    executionURL: Optional[str] = None
+    results: Optional[str] = None
     dependencies: list[str] = Field(default_factory=list)
 
     @classmethod
@@ -112,7 +146,7 @@ class StepInfo(BaseModel):
             status=step_info.state.value.lower(),
             started=step_info.start_time_local,
             ended=step_info.end_time_local,
-            executionURL=step_info.result_location,
+            results=step_info.result_location,
             dependencies=list(step_info.dependencies),
         )
 
@@ -154,7 +188,3 @@ class GetRunOutput(RunInfo):
 
 class GetStepOutput(StepInfo):
     runs: list[RunInfo]
-    # TODO: get rid of this?
-    artifacts: dict[str, int] = Field(default_factory=dict)
-    # TODO: get rid of this? We'll just have result location
-    logURL: Optional[str] = None

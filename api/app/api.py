@@ -20,7 +20,9 @@ def get_cached_workspace(wsid: str) -> Workspace:
         return Workspace.from_url(atob(wsid))
     except Exception as exc:
         logger.exception(exc)
-        raise HTTPException(status_code=500, detail=f"{exc.__class__.__name__}: {str(exc)}")
+        raise HTTPException(
+            status_code=500, detail=f"{exc.__class__.__name__}: {str(exc)}"
+        )
 
 
 @app.get("/")
@@ -77,10 +79,3 @@ def get_step(wsid: str, sid: str) -> GetStepOutput:
     if step_info is None:
         raise HTTPException(status_code=404, detail=f"No step '{step_id}' found")
     return GetStepOutput(**step_info.dict(), runs=runs)
-
-
-# TODO: Get rid of this for now
-@app.get("/api/workspace/{wsid}/artifact/{aid}")
-def get_artifact(wsid: str, aid: str):
-    moc_answer = {"jon": "test"}
-    return moc_answer

@@ -16,7 +16,7 @@ export interface Props {
 
 export const StatusIcon = ({ status }: Props) => {
     switch (status) {
-        case 'not started': {
+        case 'incomplete': {
             return (
                 <Colored status={status}>
                     <FieldTimeOutlined />
@@ -59,7 +59,7 @@ export const StatusIcon = ({ status }: Props) => {
 
 export const getColorIdFromStatus = (status?: Status): string => {
     switch (status) {
-        case 'not started': {
+        case 'incomplete': {
             return 'O8';
         }
         case 'running': {
