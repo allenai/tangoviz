@@ -24,11 +24,8 @@ export function StepDetails({ step }: Props) {
             <Descriptions.Item span={3} label="Duration">
                 <RelativeDuration start={step.started} end={step.ended} />
             </Descriptions.Item>
-            <Descriptions.Item span={3} label="Execution">
-                {<a href={step.executionURL}>{step.executionURL}</a>}
-            </Descriptions.Item>
-            <Descriptions.Item span={3} label="Logs">
-                {<a href={step.logURL}>{step.logURL}</a>}
+            <Descriptions.Item span={3} label="Results">
+                {<a href={step.results}>{step.results}</a>}
             </Descriptions.Item>
         </Descriptions>
     );

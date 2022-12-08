@@ -25,11 +25,8 @@ export function RunStepDetails({ runStepInfo }: Props) {
             <Descriptions.Item span={3} label="Duration">
                 <RelativeDuration start={runStepInfo.started} end={runStepInfo.ended} />
             </Descriptions.Item>
-            <Descriptions.Item span={3} label="Execution">
-                {<a href={runStepInfo.executionURL}>{runStepInfo.executionURL}</a>}
-            </Descriptions.Item>
-            <Descriptions.Item span={3} label="Logs">
-                {<a href={runStepInfo.logURL}>{runStepInfo.logURL}</a>}
+            <Descriptions.Item span={3} label="Results">
+                {<a href={runStepInfo.results}>{runStepInfo.results}</a>}
             </Descriptions.Item>
         </OverflowDescription>
     );

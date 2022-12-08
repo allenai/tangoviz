@@ -77,10 +77,3 @@ def get_step(wsid: str, sid: str) -> GetStepOutput:
     if step_info is None:
         raise HTTPException(status_code=404, detail=f"No step '{step_id}' found")
     return GetStepOutput(**step_info.dict(), runs=runs)
-
-
-# TODO: Get rid of this for now
-@app.get("/api/workspace/{wsid}/artifact/{aid}")
-def get_artifact(wsid: str, aid: str):
-    moc_answer = {"jon": "test"}
-    return moc_answer

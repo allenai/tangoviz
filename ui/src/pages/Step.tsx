@@ -8,7 +8,6 @@ import { Step as StepModel } from '../api/Step';
 import { noCacheOptions } from '../api/Api';
 import { useIntervalAsync, FetchInterval } from '../api/useIntervalAsync';
 import { Breadcrumb } from '../components/Breadcrumb';
-import { FileTree } from '../components/FileTree';
 import { StepDetails } from '../components/StepDetails';
 
 export const Step = () => {
@@ -40,9 +39,6 @@ export const Step = () => {
                 <>
                     <StepDetails step={response.data} />
 
-                    <h4>Artifacts</h4>
-                    <Artifacts data={response.data.artifacts} wsid={wsid} />
-
                     <h4>Used in Runs</h4>
                     <RunSummaryTable workspaceId={wsid} data={response.data.runs}></RunSummaryTable>
                 </>
@@ -50,8 +46,3 @@ export const Step = () => {
         </div>
     );
 };
-
-const Artifacts = styled(FileTree)`
-    border: ${({ theme }) => `1px solid ${theme.palette.border.default}`};
-    padding: ${({ theme }) => theme.spacing.xs};
-`;

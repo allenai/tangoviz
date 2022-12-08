@@ -1,2 +1,2 @@
-export type Status = 'not started' | 'running' | 'completed' | 'failed' | 'uncacheable';
-export const StatusArray = ['not started', 'running', 'completed', 'failed', 'uncacheable'];
+export type Status = 'incomplete' | 'running' | 'completed' | 'failed' | 'uncacheable';
+export const StatusArray = ['incomplete', 'running', 'completed', 'failed', 'uncacheable'];

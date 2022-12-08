@@ -6,9 +6,8 @@ export interface StepInfo {
     status: Status;
     started?: string;
     ended?: string;
-    executionURL?: string;
+    results?: string;
     dependencies: string[]; // ids of dependent steps
-    logURL: string;
 }
 
 export interface RunStepInfo extends StepInfo {
@@ -18,5 +17,4 @@ export interface RunStepInfo extends StepInfo {
 
 export interface Step extends StepInfo {
     runs: RunSummary[];
-    artifacts: { [file: string]: number };
 }
