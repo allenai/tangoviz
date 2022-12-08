@@ -1,4 +1,5 @@
-ai2-tango[beaker,wandb]>=1.1.0
+git+https://github.com/allenai/tango.git@main#egg=ai2-tango[beaker,wandb]
+git+https://github.com/allenai/beaker-py.git@main#egg=beaker-py
 fastapi[all]==0.88.0
 pydantic==1.9.1
 uvicorn==0.20.0
