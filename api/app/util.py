@@ -1,6 +1,27 @@
+import base64
 import logging
+from typing import Generator, Iterable
 
 from pythonjsonlogger import jsonlogger
+from tango.step_info import StepInfo
+
+
+def ordered_step_infos(step_infos: Iterable[StepInfo]) -> Generator[StepInfo, None, None]:
+    todo = list(step_infos)
+    done: set[str] = set()
+    while todo:
+        new_todo = []
+        for step_info in todo:
+            if all(dep in done for dep in step_info.dependencies):
+                done.add(step_info.unique_id)
+                yield step_info
+            else:
+                new_todo.append(step_info)
+        todo = new_todo
+
+
+def atob(s: str) -> str:
+    return base64.b64decode(s).decode()
 
 
 class StackdriverJsonFormatter(jsonlogger.JsonFormatter):
