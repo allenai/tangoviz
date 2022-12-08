@@ -285,8 +285,13 @@ function(
                             },
                             env: [
                                 {
-                                    name: 'FLASK_ENV',
-                                    value: 'production'
+                                    name: 'BEAKER_TOKEN',
+                                    valueFrom: {
+                                        secretKeyRef: {
+                                            name: 'beaker-token',
+                                            key: 'BEAKER_TOKEN'
+                                        }
+                                    }
                                 }
                             ]
                         },
