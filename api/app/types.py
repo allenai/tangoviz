@@ -154,6 +154,10 @@ class PageData(BaseModel, Generic[T]):
     sort_by: T
     sort_descending: bool = True
     match: Optional[str] = None
+    """
+    A search string to filter runs/steps. Only runs/steps with a name that contains this string
+    will be returned.
+    """
 
 
 class RunPageData(PageData[RunSort]):
