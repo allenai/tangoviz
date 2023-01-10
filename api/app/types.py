@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 from tango.common.util import local_timezone
 from tango.step_info import StepInfo as TangoStepInfo
-from tango.step_info import StepState as TangoStepState
+from tango.step_info import StepState as StepStatus
 from tango.workspace import Run as TangoRun
+from tango.workspace import RunSort, StepInfoSort
 
 from .util import ordered_step_infos
 
@@ -18,9 +19,15 @@ __all__ = [
     "StepStatus",
     "StepInfo",
     "GetWorkspaceOutput",
+    "GetWorkspaceRunsOutput",
+    "GetWorkspaceStepsOutput",
     "RunStepInfo",
     "GetRunOutput",
     "GetStepOutput",
+    "RunPageData",
+    "StepPageData",
+    "RunSort",
+    "StepInfoSort",
 ]
 
 
@@ -30,19 +37,19 @@ class StrEnum(str, Enum):
 
 
 class RunStatus(StrEnum):
-    incomplete = "incomplete"
+    INCOMPLETE = "incomplete"
     """The run hasn't started or was stopped early."""
 
-    running = "running"
+    RUNNING = "running"
     """Some steps are still running."""
 
-    completed = "completed"
+    COMPLETED = "completed"
     """All cacheable steps completed successfully."""
 
-    failed = "failed"
+    FAILED = "failed"
     """At least one step failed."""
 
-    uncacheable = "uncacheable"
+    UNCACHEABLE = "uncacheable"
     """All steps are uncacheable, so there is no status."""
 
 
@@ -62,15 +69,15 @@ class RunInfo(BaseModel):
         incomplete = 0
         uncacheable = 0
         for step_info in run.steps.values():
-            if step_info.state == TangoStepState.RUNNING:
+            if step_info.state == StepStatus.RUNNING:
                 running += 1
-            elif step_info.state == TangoStepState.FAILED:
+            elif step_info.state == StepStatus.FAILED:
                 failed += 1
-            elif step_info.state == TangoStepState.COMPLETED:
+            elif step_info.state == StepStatus.COMPLETED:
                 completed += 1
-            elif step_info.state == TangoStepState.INCOMPLETE:
+            elif step_info.state == StepStatus.INCOMPLETE:
                 incomplete += 1
-            elif step_info.state == TangoStepState.UNCACHEABLE:
+            elif step_info.state == StepStatus.UNCACHEABLE:
                 uncacheable += 1
             if step_info.end_time_local is not None:
                 if ended is not None:
@@ -90,17 +97,17 @@ class RunInfo(BaseModel):
 
         status: RunStatus
         if failed > 0:
-            status = RunStatus.running
+            status = RunStatus.RUNNING
         elif running > 0:
-            status = RunStatus.running
+            status = RunStatus.RUNNING
         elif incomplete > 0:
-            status = RunStatus.incomplete
+            status = RunStatus.INCOMPLETE
         elif completed > 0:
-            status = RunStatus.completed
+            status = RunStatus.COMPLETED
         elif uncacheable > 0:
-            status = RunStatus.uncacheable
+            status = RunStatus.UNCACHEABLE
         else:
-            status = RunStatus.completed
+            status = RunStatus.COMPLETED
 
         if incomplete > 0 or running > 0:
             ended = None
@@ -112,23 +119,6 @@ class RunInfo(BaseModel):
             started=run.start_date.astimezone(local_timezone()),
             ended=ended,
         )
-
-
-class StepStatus(StrEnum):
-    incomplete = "incomplete"
-    """The step has not run yet."""
-
-    running = "running"
-    """The step is running right now."""
-
-    completed = "completed"
-    """The step finished running successfully."""
-
-    failed = "failed"
-    """The step ran, but failed."""
-
-    uncacheable = "uncacheable"
-    """The step is uncacheable, so there is no state."""
 
 
 class StepInfo(BaseModel):
@@ -153,8 +143,36 @@ class StepInfo(BaseModel):
 
 class GetWorkspaceOutput(BaseModel):
     url: str
-    runs: list[RunInfo]
-    allStepInfos: list[StepInfo]
+
+
+T = TypeVar("T")
+
+
+class PageData(BaseModel, Generic[T]):
+    current_page: int
+    page_size: int
+    sort_by: T
+    sort_descending: bool = True
+    match: Optional[str] = None
+
+
+class RunPageData(PageData[RunSort]):
+    sort_by: RunSort
+
+
+class StepPageData(PageData[StepInfoSort]):
+    sort_by: StepInfoSort
+    status: StepStatus
+
+
+class GetWorkspaceRunsOutput(RunPageData):
+    data: List[RunInfo]
+    total_items: int
+
+
+class GetWorkspaceStepsOutput(StepPageData):
+    data: List[StepInfo]
+    total_items: int
 
 
 class RunStepInfo(StepInfo):

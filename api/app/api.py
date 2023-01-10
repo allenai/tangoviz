@@ -20,7 +20,9 @@ def get_cached_workspace(wsid: str) -> Workspace:
         return Workspace.from_url(atob(wsid))
     except Exception as exc:
         logger.exception(exc)
-        raise HTTPException(status_code=500, detail=f"{exc.__class__.__name__}: {str(exc)}")
+        raise HTTPException(
+            status_code=500, detail=f"{exc.__class__.__name__}: {str(exc)}"
+        )
 
 
 @app.get("/")
@@ -35,19 +37,57 @@ def index() -> str:
 @app.get("/api/workspace/{wsid}", response_model=GetWorkspaceOutput)
 def get_workspace(wsid: str) -> GetWorkspaceOutput:
     workspace = get_cached_workspace(wsid)
-
-    runs: list[RunInfo] = []
-    step_infos: dict[str, StepInfo] = {}
-
-    for run in sorted(workspace.registered_runs().values(), key=lambda x: x.start_date):
-        runs.append(RunInfo.from_tango_run(run))
-        for step_info in run.steps.values():
-            step_infos[step_info.unique_id] = StepInfo.from_tango_step_info(step_info)
-
     return GetWorkspaceOutput(
         url=workspace.url,
-        runs=runs,
-        allStepInfos=list(step_infos.values()),
+    )
+
+
+@app.get("/api/workspace/{wsid}/runs", response_model=GetWorkspaceRunsOutput)
+def get_workspace_runs(wsid: str, page: RunPageData):
+    workspace = get_cached_workspace(wsid)
+
+    try:
+        matching_runs = workspace.search_registered_runs(
+            match=page.match,
+            sort_by=page.sort_by,
+            sort_descending=page.sort_descending,
+            start=page.page_size * page.current_page,
+            stop=page.page_size * (page.current_page + 1),
+        )
+    except NotImplementedError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    total_runs = workspace.num_registered_runs(match=page.match)
+
+    return GetWorkspaceRunsOutput(
+        data=[RunInfo.from_tango_run(run) for run in matching_runs],
+        total_items=total_runs,
+        **page.dict(),
+    )
+
+
+@app.get("/api/workspace/{wsid}/steps", response_model=GetWorkspaceStepsOutput)
+def get_workspace_steps(wsid: str, page: StepPageData):
+    workspace = get_cached_workspace(wsid)
+
+    try:
+        matching_steps = workspace.search_step_info(
+            match=page.match,
+            state=page.status,
+            sort_by=page.sort_by,
+            sort_descending=page.sort_descending,
+            start=page.page_size * page.current_page,
+            stop=page.page_size * (page.current_page + 1),
+        )
+    except NotImplementedError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    total_steps = workspace.num_steps(match=page.match, state=page.status)
+
+    return GetWorkspaceStepsOutput(
+        data=[StepInfo.from_tango_step_info(step_info) for step_info in matching_steps],
+        total_items=total_steps,
+        **page.dict(),
     )
 
 
