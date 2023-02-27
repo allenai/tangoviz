@@ -1,6 +1,5 @@
 import logging
 from functools import lru_cache
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from tango import Workspace
@@ -58,7 +57,7 @@ def get_workspace_runs(wsid: str, page: RunPageData):
     total_runs = workspace.num_registered_runs(match=page.match)
 
     return GetWorkspaceRunsOutput(
-        data=[RunInfo.from_tango_run(run) for run in matching_runs],
+        data=matching_runs,
         total_items=total_runs,
         **page.dict(),
     )
@@ -103,15 +102,8 @@ def get_run(wsid: str, rid: str) -> GetRunOutput:
 @app.get("/api/workspace/{wsid}/step/{sid}", response_model=GetStepOutput)
 def get_step(wsid: str, sid: str) -> GetStepOutput:
     workspace = get_cached_workspace(wsid)
-    step_info: Optional[StepInfo] = None
-    step_id = atob(sid)
-    runs: list[RunInfo] = []
-    for run in sorted(workspace.registered_runs().values(), key=lambda x: x.start_date):
-        for run_step_info in run.steps.values():
-            if run_step_info.unique_id == step_id:
-                step_info = StepInfo.from_tango_step_info(run_step_info)
-                runs.append(RunInfo.from_tango_run(run))
-                break
-    if step_info is None:
-        raise HTTPException(status_code=404, detail=f"No step '{step_id}' found")
-    return GetStepOutput(**step_info.dict(), runs=runs)
+    try:
+        tango_step_info = workspace.step_info(sid)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"No step '{sid}' found")
+    return GetStepOutput(**StepInfo.from_tango_step_info(tango_step_info).dict())

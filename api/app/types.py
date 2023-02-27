@@ -23,11 +23,11 @@ __all__ = [
     "GetWorkspaceStepsOutput",
     "RunStepInfo",
     "GetRunOutput",
-    "GetStepOutput",
     "RunPageData",
     "StepPageData",
     "RunSort",
     "StepInfoSort",
+    "GetStepOutput",
 ]
 
 
@@ -142,6 +142,10 @@ class StepInfo(BaseModel):
 
 
 class GetWorkspaceOutput(BaseModel):
+    """
+    Output type for the workspace endpoint "/api/workspace/{wsid}".
+    """
+
     url: str
 
 
@@ -170,11 +174,19 @@ class StepPageData(PageData[StepInfoSort]):
 
 
 class GetWorkspaceRunsOutput(RunPageData):
-    data: List[RunInfo]
+    """
+    Output type for the runs endpoint "/api/workspace/{wsid}/runs".
+    """
+
+    data: List[str]
     total_items: int
 
 
 class GetWorkspaceStepsOutput(StepPageData):
+    """
+    Output type for the steps endpoint "/api/workspace/{wsid}/steps".
+    """
+
     data: List[StepInfo]
     total_items: int
 
@@ -185,12 +197,11 @@ class RunStepInfo(StepInfo):
 
 
 class GetRunOutput(RunInfo):
-    name: str
-    status: RunStatus
-    stepStatus: str
+    """
+    Output type for the run endpoint "/api/workspace/{wsid}/run/{rid}".
+    """
+
     runStepInfos: list[RunStepInfo]
-    started: datetime
-    ended: Optional[datetime] = None
 
     @classmethod
     def from_tango_run(cls, run: TangoRun) -> GetRunOutput:
@@ -209,4 +220,6 @@ class GetRunOutput(RunInfo):
 
 
 class GetStepOutput(StepInfo):
-    runs: list[RunInfo]
+    """
+    Output type for the step endpoint "/api/workspace/{wsid}/step/{sid}".
+    """
