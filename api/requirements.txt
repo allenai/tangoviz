@@ -1,4 +1,4 @@
-git+https://github.com/allenai/tango.git@workspace-api-tweaks#egg=ai2-tango[beaker,gs]
+git+https://github.com/allenai/tango.git@main#egg=ai2-tango[beaker,gs]
 git+https://github.com/allenai/beaker-py.git@main#egg=beaker-py
 fastapi[all]==0.88.0
 pydantic==1.9.1
