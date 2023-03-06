@@ -57,7 +57,7 @@ def get_workspace_runs(wsid: str, page: RunPageData):
     total_runs = workspace.num_registered_runs(match=page.match)
 
     return GetWorkspaceRunsOutput(
-        data=matching_runs,
+        data=[PartialRunInfo(name=r.name, started=r.start_date) for r in matching_runs],
         total_items=total_runs,
         **page.dict(),
     )

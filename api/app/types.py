@@ -16,6 +16,7 @@ from .util import ordered_step_infos
 __all__ = [
     "RunStatus",
     "RunInfo",
+    "PartialRunInfo",
     "StepStatus",
     "StepInfo",
     "GetWorkspaceOutput",
@@ -51,6 +52,11 @@ class RunStatus(StrEnum):
 
     UNCACHEABLE = "uncacheable"
     """All steps are uncacheable, so there is no status."""
+
+
+class PartialRunInfo(BaseModel):
+    name: str
+    started: Optional[datetime]
 
 
 class RunInfo(BaseModel):
@@ -178,7 +184,7 @@ class GetWorkspaceRunsOutput(RunPageData):
     Output type for the runs endpoint "/api/workspace/{wsid}/runs".
     """
 
-    data: List[str]
+    data: List[PartialRunInfo]
     total_items: int
 
 
