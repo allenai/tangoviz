@@ -206,9 +206,7 @@ function getStartedCol<T extends StepInfo>(
     ];
 }
 
-function getEndedCol<T extends StepInfo>(
-    getDateFilterBy: GetDateFilterByType<T>
-): ColumnsType<T> {
+function getEndedCol<T extends StepInfo>(getDateFilterBy: GetDateFilterByType<T>): ColumnsType<T> {
     return [
         {
             title: getDateFilterBy('Ended', (value: RangeValue<Dayjs>, records: T[]) => {

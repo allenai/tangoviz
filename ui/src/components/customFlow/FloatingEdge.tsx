@@ -62,7 +62,6 @@ export const FloatingEdge: FC<EdgeProps<FloatingEdgeData>> = (props) => {
 };
 
 const ColorPath = styled.path<{ runStepInfo?: RunStepInfo }>`
-    stroke: ${({ theme, runStepInfo }) =>
-        theme.color[getColorIdFromStatus(runStepInfo?.status)]};
+    stroke: ${({ theme, runStepInfo }) => theme.color[getColorIdFromStatus(runStepInfo?.status)]};
     stroke-width: 4;
 `;

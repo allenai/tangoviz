@@ -1,5 +1,4 @@
 import React, { useEffect, useCallback } from 'react';
-import styled from 'styled-components';
 import useFetch from 'use-http';
 import { useParams } from 'react-router-dom';
 
