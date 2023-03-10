@@ -292,6 +292,15 @@ function(
                                             key: 'BEAKER_TOKEN'
                                         }
                                     }
+                                },
+                                {
+                                    name: 'GOOGLE_TOKEN',
+                                    valueFrom: {
+                                        secretKeyRef: {
+                                            name: 'gc-service-account',
+                                            key: 'GOOGLE_TOKEN'
+                                        }
+                                    }
                                 }
                             ]
                         },

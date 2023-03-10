@@ -15,7 +15,7 @@ on:
       - 'v*.*.*'
 
 env:
-  CACHE_PREFIX: v1  # Change this to invalidate existing cache.
+  CACHE_PREFIX: v2  # Change this to invalidate existing cache.
   PYTHONPATH: ./
 
 jobs:

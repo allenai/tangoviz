@@ -2,5 +2,6 @@
     "appName": "tangoviz",
     "contact": "jonathanb",
     "team": "reviz",
-    "replicas": { "prod": 1 }
+    "replicas": { "prod": 1 },
+    "login": "ai2"
 }
