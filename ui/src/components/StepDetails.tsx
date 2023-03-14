@@ -3,13 +3,13 @@ import { Descriptions } from 'antd';
 
 import { RelativeTime, RelativeDuration } from './Formatters';
 import { StatusIconWithLabel } from '../components/StatusIcon';
-import { Step } from '../api/Step';
+import { StepInfo } from '../api/Step';
 
 interface Props {
-    step: Step;
+    stepInfo: StepInfo;
 }
 
-export function StepDetails({ step }: Props) {
+export function StepDetails({ stepInfo: step }: Props) {
     return (
         <Descriptions size="small" title={<h4>Step Details</h4>} bordered>
             <Descriptions.Item span={3} label="Status">

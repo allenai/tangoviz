@@ -7,6 +7,7 @@ import { RangeValue } from 'rc-picker/lib/interface';
 
 import DatePicker from './DatePicker';
 import { dateWithTime } from './Formatters';
+import { InitialPageSize } from '../api/config';
 
 const { RangePicker } = DatePicker;
 
@@ -156,8 +157,8 @@ export function BaseTable<T extends object>({ data, getColumns, dataKey }: Props
                 hideOnSinglePage: true,
                 showSizeChanger: true,
                 size: 'small',
-                defaultPageSize: 10,
-                pageSizeOptions: [10, 20, 100, 500],
+                defaultPageSize: InitialPageSize,
+                pageSizeOptions: [InitialPageSize, 20, 50],
             }}
             showSorterTooltip={false}
             scroll={{

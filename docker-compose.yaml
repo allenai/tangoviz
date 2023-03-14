@@ -15,7 +15,7 @@ services:
             # makes debugging easier.
             - PYTHONUNBUFFERED=1
             - LOG_LEVEL=DEBUG
-            - BEAKER_TOKEN=${BEAKER_TOKEN}
+        env_file: ./.secrets/dev.env
     ui:
         build: ./ui
         # We can't mount the entire UI directory, since JavaScript dependencies

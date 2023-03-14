@@ -27,6 +27,34 @@ Before following the steps below, make sure that you have the latest version
 of [Docker 🐳](https://www.docker.com/get-started) installed on your local
 machine.
 
+### Beaker Setup
+
+Login to [Beaker](https://beaker.org/user) and obtain your User Token.
+
+For testing prod-like functionality, you can use the Beaker user token stored in [1Password](https://allenai.1password.com/vaults/i2t3yrat34bj23pimhovzdorpu/allitems/dlzwdrgveirtaekzkvqisf2zjy).
+
+Then run:
+
+```bash
+mkdir .secrets
+export TEMP_KEY=PASTE_BEAKER_KEY_HERE
+echo "BEAKER_TOKEN=$TEMP_KEY" >> .secrets/dev.env
+```
+
+### GCS Setup
+
+Obtain your GCS token (private key).
+
+For testing prod-like functionality, you can use the GCS user token stored in [Marina](https://marina.apps.allenai.org/a/tangoviz/s).
+
+Then run:
+
+```bash
+mkdir .secrets
+export TEMP_KEY=PASTE_GCS_PRIVATE_KEY_HERE
+echo "GOOGLE_TOKEN=$TEMP_KEY" >> .secrets/dev.env
+```
+
 ## Getting Started
 
 Start by opening `skiff.json` and updating the `appName`, `contact` and

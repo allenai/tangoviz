@@ -39,10 +39,9 @@ def get_workspace(wsid: str) -> GetWorkspaceOutput:
     )
 
 
-@app.get("/api/workspace/{wsid}/runs", response_model=GetWorkspaceRunsOutput)
-def get_workspace_runs(wsid: str, page: RunPageData):
+@app.post("/api/workspace/{wsid}/runs", response_model=GetWorkspaceRunsOutput)
+def post_workspace_runs(wsid: str, page: RunPageData):
     workspace = get_cached_workspace(wsid)
-
     try:
         matching_runs = workspace.search_registered_runs(
             match=page.match,
@@ -53,9 +52,7 @@ def get_workspace_runs(wsid: str, page: RunPageData):
         )
     except NotImplementedError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-
     total_runs = workspace.num_registered_runs(match=page.match)
-
     return GetWorkspaceRunsOutput(
         data=[PartialRunInfo(name=r.name, started=r.start_date) for r in matching_runs],
         total_items=total_runs,
@@ -63,8 +60,8 @@ def get_workspace_runs(wsid: str, page: RunPageData):
     )
 
 
-@app.get("/api/workspace/{wsid}/steps", response_model=GetWorkspaceStepsOutput)
-def get_workspace_steps(wsid: str, page: StepPageData):
+@app.post("/api/workspace/{wsid}/steps", response_model=GetWorkspaceStepsOutput)
+def post_workspace_steps(wsid: str, page: StepPageData):
     workspace = get_cached_workspace(wsid)
 
     try:
@@ -102,8 +99,9 @@ def get_run(wsid: str, rid: str) -> GetRunOutput:
 @app.get("/api/workspace/{wsid}/step/{sid}", response_model=GetStepOutput)
 def get_step(wsid: str, sid: str) -> GetStepOutput:
     workspace = get_cached_workspace(wsid)
+    step_id = atob(sid)
     try:
-        tango_step_info = workspace.step_info(sid)
+        tango_step_info = workspace.step_info(step_id)
     except KeyError:
-        raise HTTPException(status_code=404, detail=f"No step '{sid}' found")
+        raise HTTPException(status_code=404, detail=f"No step '{step_id}' found")
     return GetStepOutput(**StepInfo.from_tango_step_info(tango_step_info).dict())

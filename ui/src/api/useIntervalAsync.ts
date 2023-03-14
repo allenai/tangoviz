@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
-export const FetchInterval = 5000;
-
 export const useIntervalAsync = <R = unknown>(fn: () => Promise<R>, ms: number) => {
     const runningCount = useRef(0);
     const timeout = useRef<number>();

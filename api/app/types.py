@@ -176,7 +176,7 @@ class RunPageData(PageData[RunSort]):
 
 class StepPageData(PageData[StepInfoSort]):
     sort_by: StepInfoSort
-    status: StepStatus
+    status: Optional[StepStatus]
 
 
 class GetWorkspaceRunsOutput(RunPageData):
