@@ -144,6 +144,7 @@ export const Flow = ({ runStepInfos }: Props) => {
                     nodes={nodes}
                     edges={edges}
                     fitView
+                    minZoom={0.1}
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}>
                     <Background />

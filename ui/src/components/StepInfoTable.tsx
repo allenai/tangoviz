@@ -1,84 +1,83 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { List } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
-import { RangeValue } from 'rc-picker/lib/interface';
-import isBetween from 'dayjs/plugin/isBetween';
+import useFetch from 'use-http';
 
-import {
-    BaseTable,
-    GetInputFilterByType,
-    GetSelectFilterByType,
-    GetDateFilterByType,
-    sortByString,
-    sortByNumber,
-} from './BaseTable';
-import { StepInfo, RunStepInfo } from '../api/Step';
+import { sortByString } from './BaseTable';
+import { BasePageTable } from './BasePageTable';
+import { StepInfo } from '../api/Step';
 import { RelativeTime, RelativeDuration } from './Formatters';
 import { StatusIconWithLabel } from '../components/StatusIcon';
-import { StatusArray } from '../api/Status';
+import { PageRequest, PageResponse } from '../api/Page';
+import { noCacheOptions } from '../api/Api';
+import { addWorkspace } from '../api/Session';
+import { InitialPageSize } from '../api/config';
+import { LoadingOrError } from './LoadingOrError';
 
-dayjs.extend(isBetween);
-
-interface Props<T> {
-    data: T[];
+interface StepInfoTableProps {
     workspaceId: string;
 }
 
-export function StepInfoTable({ data, workspaceId }: Props<StepInfo>) {
-    const getColumns = (
-        getInputFilterBy: GetInputFilterByType<StepInfo>,
-        getSelectFilterBy: GetSelectFilterByType<StepInfo>,
-        getDateFilterBy: GetDateFilterByType<StepInfo>
-    ): ColumnsType<StepInfo> => {
+export function StepInfoTable({ workspaceId }: StepInfoTableProps) {
+    const dataKey = 'id';
+    const sortBy = 'start_time';
+    const fetchRunsUrl = `/api/workspace/${workspaceId}/steps`;
+    const { post, response, loading, error } = useFetch<PageResponse<StepInfo>>(
+        fetchRunsUrl,
+        noCacheOptions
+    );
+
+    const getData = async function (req: PageRequest) {
+        if (!req.sort_by.length) {
+            req.sort_by = sortBy;
+        }
+        await post('', { ...noCacheOptions, ...req });
+        if (response.ok) {
+            // if we were successful in loading this ws, add it to the recent list
+            addWorkspace(atob(workspaceId));
+        }
+    };
+
+    useEffect(() => {
+        getData({
+            current_page: 0,
+            page_size: InitialPageSize,
+            sort_by: sortBy,
+            sort_descending: false,
+        });
+    }, []);
+
+    const getColumns = (): ColumnsType<StepInfo> => {
         return [
-            ...getStatusCol(getSelectFilterBy),
-            ...getIdCol(getInputFilterBy, workspaceId),
-            ...getStartedCol(getDateFilterBy),
-            ...getEndedCol(getDateFilterBy),
+            ...getStatusCol(),
+            ...getIdCol(workspaceId),
+            ...getStartedCol(),
+            ...getEndedCol(),
             ...getDurationCol(),
         ];
     };
 
-    return <BaseTable<StepInfo> dataKey="id" data={data} getColumns={getColumns} />;
+    return (
+        <>
+            <h4>Steps</h4>
+            <LoadingOrError dataType="Steps" loading={loading} error={error} />
+            {!error && response.data ? (
+                <BasePageTable<StepInfo>
+                    loading={loading}
+                    dataKey={dataKey}
+                    data={response.data.data}
+                    dataTotal={response.data.total_items}
+                    getData={getData}
+                    getColumns={getColumns}
+                />
+            ) : null}
+        </>
+    );
 }
 
-export function RunStepInfoTable({ data, workspaceId }: Props<RunStepInfo>) {
-    const getColumns = (
-        getInputFilterBy: GetInputFilterByType<RunStepInfo>,
-        getSelectFilterBy: GetSelectFilterByType<RunStepInfo>,
-        getDateFilterBy: GetDateFilterByType<RunStepInfo>
-    ): ColumnsType<RunStepInfo> => {
-        return [
-            ...getStatusCol(getSelectFilterBy),
-            ...getIdCol(getInputFilterBy, workspaceId),
-            ...getNameCol(getInputFilterBy),
-            ...getOrderCol(getInputFilterBy),
-            ...getDependenciesCol(getInputFilterBy, workspaceId),
-            ...getStartedCol(getDateFilterBy),
-            ...getEndedCol(getDateFilterBy),
-            ...getDurationCol<RunStepInfo>(),
-        ];
-    };
-
-    return <BaseTable<RunStepInfo> dataKey="id" data={data} getColumns={getColumns} />;
-}
-
-function getStatusCol<T extends StepInfo>(
-    getSelectFilterBy: GetSelectFilterByType<T>
-): ColumnsType<T> {
+function getStatusCol<T extends StepInfo>(): ColumnsType<T> {
     return [
         {
-            title: getSelectFilterBy(
-                'Status',
-                (value: string, records: T[]) => {
-                    return records.filter((record) => {
-                        return record.status.toLowerCase().includes(value.toLowerCase());
-                    });
-                },
-                StatusArray
-            ),
+            title: 'Status',
             dataIndex: 'status',
             key: 'status',
             width: 200,
@@ -88,19 +87,12 @@ function getStatusCol<T extends StepInfo>(
     ];
 }
 
-function getIdCol<T extends StepInfo>(
-    getInputFilterBy: GetInputFilterByType<T>,
-    workspaceId: string
-): ColumnsType<T> {
+function getIdCol<T extends StepInfo>(workspaceId: string): ColumnsType<T> {
     return [
         {
-            title: getInputFilterBy('ID', (value: string, records: T[]) => {
-                return records.filter((record) => {
-                    return record.id.toLowerCase().includes(value.toLowerCase());
-                });
-            }),
+            title: 'ID',
             dataIndex: 'id',
-            key: 'id',
+            key: 'unique_id',
             width: 200,
             sorter: sortByString((item) => item.id),
             render: (val, obj) => (
@@ -110,95 +102,12 @@ function getIdCol<T extends StepInfo>(
     ];
 }
 
-function getNameCol<T extends RunStepInfo>(
-    getInputFilterBy: GetInputFilterByType<T>
-): ColumnsType<T> {
+function getStartedCol<T extends StepInfo>(): ColumnsType<T> {
     return [
         {
-            title: getInputFilterBy('Name', (value: string, records: T[]) => {
-                return records.filter((record) => {
-                    return (record.name || '').toLowerCase().includes(value.toLowerCase());
-                });
-            }),
-            dataIndex: 'name',
-            key: 'name',
-            width: 200,
-            sorter: sortByString((item) => item.name),
-        },
-    ];
-}
-
-function getOrderCol<T extends RunStepInfo>(
-    getInputFilterBy: GetInputFilterByType<T>
-): ColumnsType<T> {
-    return [
-        {
-            title: getInputFilterBy('Order', (value: string, records: T[]) => {
-                return records.filter((record) => {
-                    return (record.order || 0).toString().includes(value.toLowerCase());
-                });
-            }),
-            dataIndex: 'order',
-            key: 'order',
-            width: 100,
-            sorter: sortByNumber((item) => item.order),
-        },
-    ];
-}
-
-function getDependenciesCol<T extends RunStepInfo>(
-    getInputFilterBy: GetInputFilterByType<T>,
-    workspaceId: string
-): ColumnsType<T> {
-    return [
-        {
-            title: getInputFilterBy('Dependencies', (value: string, records: T[]) => {
-                return records.filter((record) => {
-                    return record.dependencies.includes(value.toLowerCase());
-                });
-            }),
-            dataIndex: 'dependencies',
-            key: 'dependencies',
-            width: 100,
-            render: (val, _) => (
-                <ScrollDiv>
-                    {val.length ? (
-                        <List
-                            size="small"
-                            dataSource={val}
-                            pagination={false}
-                            renderItem={(d: string) => {
-                                return (
-                                    <List.Item>
-                                        <a href={`/workspace/${workspaceId}/step/${btoa(d)}`}>
-                                            {d}
-                                        </a>
-                                    </List.Item>
-                                );
-                            }}
-                        />
-                    ) : null}
-                </ScrollDiv>
-            ),
-        },
-    ];
-}
-
-function getStartedCol<T extends StepInfo>(
-    getDateFilterBy: GetDateFilterByType<T>
-): ColumnsType<T> {
-    return [
-        {
-            title: getDateFilterBy('Started', (value: RangeValue<Dayjs>, records: T[]) => {
-                return records.filter((record) => {
-                    if (!record.started || !value) {
-                        return false;
-                    }
-                    return dayjs(record.started).isBetween(value[0], value[1]);
-                });
-            }),
+            title: 'Started',
             dataIndex: 'started',
-            key: 'started',
+            key: 'start_time',
             width: 260,
             sorter: sortByString((item) => item.started),
             render: (val, _) => <RelativeTime date={val} />,
@@ -206,21 +115,13 @@ function getStartedCol<T extends StepInfo>(
     ];
 }
 
-function getEndedCol<T extends StepInfo>(getDateFilterBy: GetDateFilterByType<T>): ColumnsType<T> {
+function getEndedCol<T extends StepInfo>(): ColumnsType<T> {
     return [
         {
-            title: getDateFilterBy('Ended', (value: RangeValue<Dayjs>, records: T[]) => {
-                return records.filter((record) => {
-                    if (!record.started || !value) {
-                        return false;
-                    }
-                    return dayjs(record.started).isBetween(value[0], value[1]);
-                });
-            }),
+            title: 'Ended',
             dataIndex: 'ended',
             key: 'ended',
             width: 260,
-            sorter: sortByString((item) => item.ended),
             render: (val, _) => <RelativeTime date={val} />,
         },
     ];
@@ -232,15 +133,7 @@ function getDurationCol<T extends StepInfo>(): ColumnsType<T> {
             title: 'Duration',
             key: 'duration',
             width: 200,
-            sorter: sortByNumber((item) => {
-                return dayjs(item.ended).diff(dayjs(item.started));
-            }),
             render: (_, obj) => <RelativeDuration start={obj.started} end={obj.ended} />,
         },
     ];
 }
-
-const ScrollDiv = styled.div`
-    max-height: 122px;
-    overflow-y: auto;
-`;
